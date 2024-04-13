@@ -1,2 +1,92 @@
 {
+    "CVE-2024-2511": {
+        "description": "Issue summary: Some non-default TLS server configurations can cause unbounded\nmemory growth when processing TLSv1.3 sessions\n\nImpact summary: An attacker may exploit certain server configurations to trigger\nunbounded memory growth that would lead to a Denial of Service\n\nThis problem can occur in TLSv1.3 if the non-default SSL_OP_NO_TICKET option is\nbeing used (but not if early_data support is also configured and the default\nanti-replay protection is in use). In this case, under certain conditions, the\nsession cache can get into an incorrect state and it will fail to flush properly\nas it fills. The session cache will continue to grow in an unbounded manner. A\nmalicious client could deliberately create the scenario for this failure to\nforce a Denial of Service. It may also happen by accident in normal operation.\n\nThis issue only affects TLS servers supporting TLSv1.3. It does not affect TLS\nclients.\n\nThe FIPS modules in 3.2, 3.1 and 3.0 are not affected by this issue. OpenSSL\n1.0.2 is also not affected by this ",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-2511",
+        "status": "ACTIVE",
+        "title": "CVE-2024-2511 - pyOpenSSL, cryptography",
+        "vulnerability_id": "CVE-2024-2511",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "opt/conda/lib/python3.10/site-packages/pyOpenSSL-24.0.0.dist-info/METADATA",
+                "name": "pyOpenSSL",
+                "packageManager": "PYTHONPKG",
+                "version": "24.0.0"
+            },
+            {
+                "epoch": 0,
+                "filePath": "opt/conda/lib/python3.10/site-packages/cryptography-42.0.5.dist-info/METADATA",
+                "name": "cryptography",
+                "packageManager": "PYTHONPKG",
+                "version": "42.0.5"
+            }
+        ]
+    },
+    "GHSA-jjg7-2v4v-x38h": {
+        "description": "### Impact\nA specially crafted argument to the `idna.encode()` function could consume significant resources. This may lead to a denial-of-service.\n\n### Patches\nThe function has been refined to reject such strings without the associated resource consumption in version 3.7.\n\n### Workarounds\nDomain names cannot exceed 253 characters in length, if this length limit is enforced prior to passing the domain to the `idna.encode()` function it should no longer consume significant resources. This is triggered by arbitrarily large inputs that would not occur in normal usage, but may be passed to the library assuming there is no preliminary input validation by the higher-level application.\n\n### References\n* https://huntr.com/bounties/93d78d07-d791-4b39-a845-cbfabc44aadb",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "GITHUB",
+        "source_url": "https://github.com/advisories/GHSA-jjg7-2v4v-x38h",
+        "status": "ACTIVE",
+        "title": "GHSA-jjg7-2v4v-x38h - idna",
+        "vulnerability_id": "GHSA-jjg7-2v4v-x38h",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "opt/conda/lib/python3.10/site-packages/idna-3.6.dist-info/METADATA",
+                "name": "idna",
+                "packageManager": "PYTHONPKG",
+                "version": "3.6"
+            }
+        ]
+    },
+    "SNYK-PYTHON-IDNA-6597975": {
+        "description": "## Overview\n\nAffected versions of this package are vulnerable to Resource Exhaustion via the `idna.encode` function. An attacker can consume significant resources and potentially cause a denial-of-service by supplying specially crafted arguments to this function. \r\n\r\n**Note:**\r\nThis is triggered by arbitrarily large inputs that would not occur in normal usage but may be passed to the library assuming there is no preliminary input validation by the higher-level application.\n## Remediation\nUpgrade `idna` to version 3.7 or higher.\n## References\n- [GitHub Commit](https://github.com/kjd/idna/commit/5beb28b9dd77912c0dd656d8b0fdba3eb80222e7)",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 6.2,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 6.2,
+                "scoreSource": "SNYK",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "SNYK",
+        "source_url": "https://security.snyk.io/vuln/SNYK-PYTHON-IDNA-6597975",
+        "status": "ACTIVE",
+        "title": "IN1-PYTHON-IDNA-6597975 - idna",
+        "vulnerability_id": "SNYK-PYTHON-IDNA-6597975",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "opt/conda/lib/python3.10/site-packages/idna-3.6.dist-info/METADATA",
+                "name": "idna",
+                "packageManager": "PYTHONPKG",
+                "version": "3.6"
+            }
+        ]
+    }
 }

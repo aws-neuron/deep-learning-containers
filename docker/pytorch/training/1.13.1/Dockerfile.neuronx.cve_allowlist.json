@@ -1,4 +1,54 @@
 {
+    "CVE-2024-2511": {
+        "description": "Issue summary: Some non-default TLS server configurations can cause unbounded\nmemory growth when processing TLSv1.3 sessions\n\nImpact summary: An attacker may exploit certain server configurations to trigger\nunbounded memory growth that would lead to a Denial of Service\n\nThis problem can occur in TLSv1.3 if the non-default SSL_OP_NO_TICKET option is\nbeing used (but not if early_data support is also configured and the default\nanti-replay protection is in use). In this case, under certain conditions, the\nsession cache can get into an incorrect state and it will fail to flush properly\nas it fills. The session cache will continue to grow in an unbounded manner. A\nmalicious client could deliberately create the scenario for this failure to\nforce a Denial of Service. It may also happen by accident in normal operation.\n\nThis issue only affects TLS servers supporting TLSv1.3. It does not affect TLS\nclients.\n\nThe FIPS modules in 3.2, 3.1 and 3.0 are not affected by this issue. OpenSSL\n1.0.2 is also not affected by this ",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-2511",
+        "status": "ACTIVE",
+        "title": "CVE-2024-2511 - cryptography",
+        "vulnerability_id": "CVE-2024-2511",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/cryptography-42.0.5.dist-info/METADATA",
+                "name": "cryptography",
+                "packageManager": "PYTHONPKG",
+                "version": "42.0.5"
+            }
+        ]
+    },
+    "CVE-2024-3568": {
+        "description": "The huggingface/transformers library is vulnerable to arbitrary code execution through deserialization of untrusted data within the `load_repo_checkpoint()` function of the `TFPreTrainedModel()` class. Attackers can execute arbitrary code and commands by crafting a malicious serialized payload, exploiting the use of `pickle.load()` on data from potentially untrusted sources. This vulnerability allows for remote code execution (RCE) by deceiving victims into loading a seemingly harmless checkpoint during a normal training process, thereby enabling attackers to execute arbitrary code on the targeted machine.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-3568",
+        "status": "ACTIVE",
+        "title": "CVE-2024-3568 - transformers",
+        "vulnerability_id": "CVE-2024-3568",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.36.2.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.36.2"
+            }
+        ]
+    },
     "SNYK-PYTHON-TRANSFORMERS-6220003": {
         "description": "## Overview\n[transformers](https://pypi.org/project/transformers) is a State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow\n\nAffected versions of this package are vulnerable to Command Injection via the `subprocess.Popen` calls. This could potentially allow for the execution of arbitrary code.\r\n\r\n\r\n**Note:**\r\nIt appears that while this issue is generally not critical for the library's primary use cases, it can become more significant in specific production environments. \r\nParticularly in scenarios where the library interacts with user-generated input, such as in web application backends, desktop applications, and cloud-based ML services, the risk of arbitrary code execution increases.\n## Remediation\nUpgrade `transformers` to version 4.37.0 or higher.\n## References\n- [Additional Information](https://bandit.readthedocs.io/en/1.7.6/plugins/b602_subprocess_popen_with_shell_equals_true.html)\n- [GitHub Commit](https://github.com/huggingface/transformers/commit/2272ab57a99bcac972b5252b87c31e24d0b25538)\n",
         "remediation": {
