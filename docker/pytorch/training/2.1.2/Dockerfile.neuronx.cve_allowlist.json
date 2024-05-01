@@ -24,6 +24,56 @@
             }
         ]
     },
+    "CVE-2024-31580": {
+        "description": "PyTorch before v2.2.0 was discovered to contain a heap buffer overflow vulnerability in the component /runtime/vararg_functions.cpp. This vulnerability allows attackers to cause a Denial of Service (DoS) via a crafted input.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-31580",
+        "status": "ACTIVE",
+        "title": "CVE-2024-31580 - torch",
+        "vulnerability_id": "CVE-2024-31580",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/torch-2.1.2.dist-info/METADATA",
+                "name": "torch",
+                "packageManager": "PYTHONPKG",
+                "version": "2.1.2"
+            }
+        ]
+    },
+    "CVE-2024-31583": {
+        "description": "Pytorch before version v2.2.0 was discovered to contain a use-after-free vulnerability in torch/csrc/jit/mobile/interpreter.cpp.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-31583",
+        "status": "ACTIVE",
+        "title": "CVE-2024-31583 - torch",
+        "vulnerability_id": "CVE-2024-31583",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/torch-2.1.2.dist-info/METADATA",
+                "name": "torch",
+                "packageManager": "PYTHONPKG",
+                "version": "2.1.2"
+            }
+        ]
+    },
     "CVE-2024-3568": {
         "description": "The huggingface/transformers library is vulnerable to arbitrary code execution through deserialization of untrusted data within the `load_repo_checkpoint()` function of the `TFPreTrainedModel()` class. Attackers can execute arbitrary code and commands by crafting a malicious serialized payload, exploiting the use of `pickle.load()` on data from potentially untrusted sources. This vulnerability allows for remote code execution (RCE) by deceiving victims into loading a seemingly harmless checkpoint during a normal training process, thereby enabling attackers to execute arbitrary code on the targeted machine.",
         "remediation": {

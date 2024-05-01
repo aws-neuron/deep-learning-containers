@@ -12,27 +12,27 @@
         "source": "NVD",
         "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-2511",
         "status": "ACTIVE",
-        "title": "CVE-2024-2511 - pyOpenSSL, cryptography",
+        "title": "CVE-2024-2511 - cryptography, pyOpenSSL",
         "vulnerability_id": "CVE-2024-2511",
         "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/pyOpenSSL-24.0.0.dist-info/METADATA",
-                "name": "pyOpenSSL",
-                "packageManager": "PYTHONPKG",
-                "version": "24.0.0"
-            },
             {
                 "epoch": 0,
                 "filePath": "opt/conda/lib/python3.10/site-packages/cryptography-42.0.5.dist-info/METADATA",
                 "name": "cryptography",
                 "packageManager": "PYTHONPKG",
                 "version": "42.0.5"
+            },
+            {
+                "epoch": 0,
+                "filePath": "opt/conda/lib/python3.10/site-packages/pyOpenSSL-24.0.0.dist-info/METADATA",
+                "name": "pyOpenSSL",
+                "packageManager": "PYTHONPKG",
+                "version": "24.0.0"
             }
         ]
     },
-    "GHSA-jjg7-2v4v-x38h": {
-        "description": "### Impact\nA specially crafted argument to the `idna.encode()` function could consume significant resources. This may lead to a denial-of-service.\n\n### Patches\nThe function has been refined to reject such strings without the associated resource consumption in version 3.7.\n\n### Workarounds\nDomain names cannot exceed 253 characters in length, if this length limit is enforced prior to passing the domain to the `idna.encode()` function it should no longer consume significant resources. This is triggered by arbitrarily large inputs that would not occur in normal usage, but may be passed to the library assuming there is no preliminary input validation by the higher-level application.\n\n### References\n* https://huntr.com/bounties/93d78d07-d791-4b39-a845-cbfabc44aadb",
+    "CVE-2024-31580": {
+        "description": "PyTorch before v2.2.0 was discovered to contain a heap buffer overflow vulnerability in the component /runtime/vararg_functions.cpp. This vulnerability allows attackers to cause a Denial of Service (DoS) via a crafted input.",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
@@ -40,52 +40,44 @@
         },
         "score": 0.0,
         "score_details": {},
-        "severity": "MEDIUM",
-        "source": "GITHUB",
-        "source_url": "https://github.com/advisories/GHSA-jjg7-2v4v-x38h",
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-31580",
         "status": "ACTIVE",
-        "title": "GHSA-jjg7-2v4v-x38h - idna",
-        "vulnerability_id": "GHSA-jjg7-2v4v-x38h",
+        "title": "CVE-2024-31580 - torch",
+        "vulnerability_id": "CVE-2024-31580",
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/idna-3.6.dist-info/METADATA",
-                "name": "idna",
+                "filePath": "opt/conda/lib/python3.10/site-packages/torch-1.13.1.dist-info/METADATA",
+                "name": "torch",
                 "packageManager": "PYTHONPKG",
-                "version": "3.6"
+                "version": "1.13.1"
             }
         ]
     },
-    "SNYK-PYTHON-IDNA-6597975": {
-        "description": "## Overview\n\nAffected versions of this package are vulnerable to Resource Exhaustion via the `idna.encode` function. An attacker can consume significant resources and potentially cause a denial-of-service by supplying specially crafted arguments to this function. \r\n\r\n**Note:**\r\nThis is triggered by arbitrarily large inputs that would not occur in normal usage but may be passed to the library assuming there is no preliminary input validation by the higher-level application.\n## Remediation\nUpgrade `idna` to version 3.7 or higher.\n## References\n- [GitHub Commit](https://github.com/kjd/idna/commit/5beb28b9dd77912c0dd656d8b0fdba3eb80222e7)",
+    "CVE-2024-31583": {
+        "description": "Pytorch before version v2.2.0 was discovered to contain a use-after-free vulnerability in torch/csrc/jit/mobile/interpreter.cpp.",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
             }
         },
-        "score": 6.2,
-        "score_details": {
-            "cvss": {
-                "adjustments": [],
-                "score": 6.2,
-                "scoreSource": "SNYK",
-                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                "version": "3.1"
-            }
-        },
-        "severity": "MEDIUM",
-        "source": "SNYK",
-        "source_url": "https://security.snyk.io/vuln/SNYK-PYTHON-IDNA-6597975",
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-31583",
         "status": "ACTIVE",
-        "title": "IN1-PYTHON-IDNA-6597975 - idna",
-        "vulnerability_id": "SNYK-PYTHON-IDNA-6597975",
+        "title": "CVE-2024-31583 - torch",
+        "vulnerability_id": "CVE-2024-31583",
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/idna-3.6.dist-info/METADATA",
-                "name": "idna",
+                "filePath": "opt/conda/lib/python3.10/site-packages/torch-1.13.1.dist-info/METADATA",
+                "name": "torch",
                 "packageManager": "PYTHONPKG",
-                "version": "3.6"
+                "version": "1.13.1"
             }
         ]
     }
