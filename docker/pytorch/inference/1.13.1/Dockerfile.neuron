@@ -107,7 +107,7 @@ RUN pip install --no-cache-dir -U \
     boto3 \
     cryptography
 
-RUN pip install neuron-cc==$NEURON_CC_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
+RUN pip install "neuron-cc[tensorflow]==$NEURON_CC_VERSION" --extra-index-url https://pip.repos.neuron.amazonaws.com \
     torch-neuron==$NEURON_FRAMEWORK_VERSION \
  && pip install -U protobuf==3.19.5 \
     torchserve==${TORCHSERVE_VERSION} \
