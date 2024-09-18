@@ -4,12 +4,13 @@ LABEL maintainer="Amazon AI"
 LABEL dlc_major_version="1"
 
 # Neuron SDK components version numbers
-ARG NEURONX_DISTRIBUTED_VERSION=0.8.0
-ARG NEURONX_CC_VERSION=2.14.227.0
-ARG NEURONX_FRAMEWORK_VERSION=2.1.2.2.2.0
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.21.46.0-69b77134b
-ARG NEURONX_RUNTIME_LIB_VERSION=2.21.41.0-fb1705f5f
-ARG NEURONX_TOOLS_VERSION=2.18.3.0
+ARG NEURONX_DISTRIBUTED_VERSION=0.9.0
+ARG NEURONX_DISTRIBUTED_TRAINING_VERSION=1.0.0
+ARG NEURONX_CC_VERSION=2.15.128.0
+ARG NEURONX_FRAMEWORK_VERSION=2.1.2.2.3.0
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.22.26.0-17a033bc8
+ARG NEURONX_RUNTIME_LIB_VERSION=2.22.14.0-6e27b8d5b
+ARG NEURONX_TOOLS_VERSION=2.19.0.0
 
 ARG PYTHON=python3.10
 ARG PYTHON_VERSION=3.10.12
@@ -142,7 +143,8 @@ RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pk
 RUN ${PIP} config set global.extra-index-url https://pip.repos.neuron.amazonaws.com \
  && ${PIP} install --force-reinstall torch-neuronx==$NEURONX_FRAMEWORK_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
  && ${PIP} install --force-reinstall neuronx-cc==$NEURONX_CC_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
- && ${PIP} install --force-reinstall --no-deps neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com
+ && ${PIP} install --force-reinstall --no-deps neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
+ && ${PIP} install --force-reinstall --no-deps neuronx_distributed_training==$NEURONX_DISTRIBUTED_TRAINING_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com
 
 # attrs, neuronx-cc required: >=19.2.0, sagemaker <24,>=23.1.0
 # protobuf neuronx-cc<4, sagemaker-training >=3.9.2,<=3.20.3
