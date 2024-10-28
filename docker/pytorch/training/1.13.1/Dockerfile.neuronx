@@ -3,14 +3,15 @@ FROM public.ecr.aws/docker/library/ubuntu:20.04
 LABEL maintainer="Amazon AI"
 LABEL dlc_major_version="1"
 
-# Neuron SDK components version numbers
-ARG NEURONX_FRAMEWORK_VERSION=1.13.1.1.16.0
-ARG NEURONX_DISTRIBUTED_VERSION=0.9.0
-ARG NEURONX_DISTRIBUTED_TRAINING_VERSION=1.0.0
-ARG NEURONX_CC_VERSION=2.15.128.0
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.22.26.0-17a033bc8
-ARG NEURONX_RUNTIME_LIB_VERSION=2.22.14.0-6e27b8d5b
-ARG NEURONX_TOOLS_VERSION=2.19.0.0
+# Neuron SDK pre-release packages
+ARG NEURON_ARTIFACT_PATH=/root/neuron_artifacts
+ARG NEURONX_RUNTIME_LIB_VERSION
+ARG NEURONX_COLLECTIVES_LIB_VERSION
+ARG NEURONX_TOOLS_VERSION
+ARG NEURONX_FRAMEWORK_VERSION
+ARG NEURONX_CC_VERSION
+ARG NEURONX_DISTRIBUTED_VERSION
+ARG NEURONX_DISTRIBUTED_TRAINING_VERSION
 
 ARG PYTHON=python3.10
 ARG PYTHON_VERSION=3.10.12
@@ -32,7 +33,7 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib64"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/openmpi/lib64"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
-ENV PATH /opt/aws/neuron/bin/:$PATH
+ENV PATH="/opt/aws/neuron/bin:${PATH}"
 ENV SAGEMAKER_TRAINING_MODULE=sagemaker_pytorch_container.training:main
 ENV DGLBACKEND=pytorch
 
@@ -76,17 +77,15 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && apt-get clean
 
-RUN echo "deb https://apt.repos.neuron.amazonaws.com focal main" > /etc/apt/sources.list.d/neuron.list
-RUN wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
+# Copy Neuron artifacts into container for local installation
+RUN mkdir ${NEURON_ARTIFACT_PATH}
+COPY pip ${NEURON_ARTIFACT_PATH}/pip/
+COPY apt ${NEURON_ARTIFACT_PATH}/apt/
 
-RUN apt-get update \
- && apt-get install -y \
-    aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
-    aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
-    aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
+RUN apt-get install -y \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_TOOLS_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_COLLECTIVES_LIB_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_RUNTIME_LIB_VERSION}
 
 # Install Open MPI
 RUN mkdir -p /tmp/openmpi \
@@ -99,6 +98,15 @@ RUN mkdir -p /tmp/openmpi \
  && make install \
  && ldconfig \
  && rm -rf /tmp/openmpi
+
+# Install packages and configure SSH for MPI operator in k8s
+RUN apt-get update && apt-get install -y openmpi-bin openssh-server \
+ && mkdir -p /var/run/sshd \
+ && echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config \
+ && echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config \
+ && sed -i 's/#\(StrictModes \).*/\1no/g' /etc/ssh/sshd_config \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt-get clean
 
 # install Python
 RUN wget -q https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz \
@@ -140,11 +148,39 @@ RUN ${PIP} install --no-cache-dir -U \
     Pillow
 
 RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
-RUN ${PIP} config set global.extra-index-url https://pip.repos.neuron.amazonaws.com \
- && ${PIP} install --force-reinstall torch-neuronx==$NEURONX_FRAMEWORK_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
- && ${PIP} install --force-reinstall neuronx-cc==$NEURONX_CC_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
- && ${PIP} install --force-reinstall --no-deps neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
-&& ${PIP} install --force-reinstall --no-deps neuronx_distributed_training==$NEURONX_DISTRIBUTED_TRAINING_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com
+
+RUN pip install --force-reinstall --find-links ${NEURON_ARTIFACT_PATH}/pip \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_CC_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_FRAMEWORK_VERSION}
+
+RUN pip install --no-deps --find-links -U ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_DISTRIBUTED_VERSION}
+
+## Installation for Neuronx Distributed Training framework
+# Install Cython
+RUN pip install --no-cache-dir Cython
+
+# Copy the apex_setup.py file
+COPY apex_setup.py /root/apex_setup.py
+
+# Clone and build Apex
+RUN git clone https://github.com/NVIDIA/apex.git /root/apex \
+    && cd /root/apex \
+    && git checkout 23.05 \
+    && cp /root/apex_setup.py setup.py \
+    && python3 setup.py bdist_wheel
+
+#Install dependencies from requirements and extras for SageMaker usecase
+RUN wget https://raw.githubusercontent.com/aws-neuron/neuronx-distributed-training/master/requirements.txt \
+    && pip install --no-deps --no-cache-dir -r requirements.txt /root/apex/dist/apex-0.1-py3-none-any.whl \
+    && pip install --force-reinstall "numba==0.57.1" \
+    "multiprocess==0.70.16" \
+    "numpy>=1.24.3,<=1.25.2" \
+    "dill==0.3.8"
+
+
+RUN pip install --no-deps --find-links -U ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_DISTRIBUTED_TRAINING_VERSION} 
+
+RUN rm -rf ${NEURON_ARTIFACT_PATH}
 
 # attrs, neuronx-cc required: >=19.2.0, sagemaker <24,>=23.1.0
 # protobuf neuronx-cc<4, sagemaker-training >=3.9.2,<=3.20.3
@@ -167,9 +203,7 @@ RUN pip install --no-cache-dir -U \
     "opencv-python>=4.8.1.78" \
     "plotly>=5.11,<6" \
     "seaborn>=0.12,<1" \
-    "numba>=0.56.4,<0.57" \
-    "shap>=0.41,<1" \
-    "numpy<1.24,>1.21"
+    "shap>=0.41,<1"
 
 # EFA Installer does apt get. Make sure to run apt update before that
 RUN apt-get update

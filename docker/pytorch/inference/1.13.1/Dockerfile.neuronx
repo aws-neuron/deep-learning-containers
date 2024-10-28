@@ -4,14 +4,15 @@ LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
-# Neuron SDK components version numbers
-ARG NEURONX_FRAMEWORK_VERSION=1.13.1.1.16.0
-ARG NEURONX_DISTRIBUTED_VERSION=0.9.0
-ARG NEURONX_CC_VERSION=2.15.128.0
-ARG NEURONX_TRANSFORMERS_VERSION=0.12.313
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.22.26.0-17a033bc8
-ARG NEURONX_RUNTIME_LIB_VERSION=2.22.14.0-6e27b8d5b
-ARG NEURONX_TOOLS_VERSION=2.19.0.0
+# Neuron SDK pre-release packages
+ARG NEURON_ARTIFACT_PATH=/root/neuron_artifacts
+ARG NEURONX_RUNTIME_LIB_VERSION
+ARG NEURONX_COLLECTIVES_LIB_VERSION
+ARG NEURONX_TOOLS_VERSION
+ARG NEURONX_FRAMEWORK_VERSION
+ARG NEURONX_TRANSFORMERS_VERSION
+ARG NEURONX_CC_VERSION
+ARG NEURONX_DISTRIBUTED_VERSION
 
 ARG PYTHON=python3.10
 ARG PYTHON_VERSION=3.10.12
@@ -56,17 +57,15 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-RUN echo "deb https://apt.repos.neuron.amazonaws.com focal main" > /etc/apt/sources.list.d/neuron.list
-RUN wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
+# Copy Neuron artifacts into container for local installation
+RUN mkdir ${NEURON_ARTIFACT_PATH}
+COPY pip ${NEURON_ARTIFACT_PATH}/pip/
+COPY apt ${NEURON_ARTIFACT_PATH}/apt/
 
-RUN apt-get update \
- && apt-get install -y \
-    aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
-    aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
-    aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
+RUN apt-get install -y \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_TOOLS_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_COLLECTIVES_LIB_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_RUNTIME_LIB_VERSION}
 
 # https://github.com/docker-library/openjdk/issues/261 https://github.com/docker-library/openjdk/pull/263/files
 RUN keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt; \
@@ -89,7 +88,6 @@ RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases
     # Below 2 are included in miniconda base, but not mamba so need to install
     conda-content-trust \
     charset-normalizer \
-
  && /opt/conda/bin/conda clean -ya
 
 RUN conda install -c conda-forge \
@@ -114,15 +112,17 @@ RUN pip install --no-cache-dir -U \
     boto3 \
     cryptography
 
-RUN pip install -U --extra-index-url https://pip.repos.neuron.amazonaws.com \
-    neuronx-cc==$NEURONX_CC_VERSION \
-    torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
-    transformers-neuronx==$NEURONX_TRANSFORMERS_VERSION \
+RUN pip install --find-links ${NEURON_ARTIFACT_PATH}/pip \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_CC_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_FRAMEWORK_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_TRANSFORMERS_VERSION} \
  && pip install -U "protobuf>=3.18.3,<4" \
     torchserve==${TORCHSERVE_VERSION} \
     torch-model-archiver==${TORCHSERVE_VERSION} \
  && pip install --no-deps --no-cache-dir -U torchvision==0.14.* \
- && pip install --no-deps -U --extra-index-url https://pip.repos.neuron.amazonaws.com neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION
+ && pip install --no-deps --find-links -U ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_DISTRIBUTED_VERSION}
+
+RUN rm -rf ${NEURON_ARTIFACT_PATH}
 
 RUN useradd -m model-server \
  && mkdir -p /home/model-server/tmp /opt/ml/model \

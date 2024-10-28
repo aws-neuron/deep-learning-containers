@@ -4,10 +4,11 @@ LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
-# Neuron SDK components version numbers
-ARG NEURON_FRAMEWORK_VERSION=1.13.1.2.11.7.0
-ARG NEURON_CC_VERSION=1.24.0.0
-ARG NEURONX_TOOLS_VERSION=2.19.0.0
+# Neuron SDK pre-release packages
+ARG NEURON_ARTIFACT_PATH=/root/neuron_artifacts
+ARG NEURONX_TOOLS_VERSION
+ARG NEURON_FRAMEWORK_VERSION
+ARG NEURON_CC_VERSION
 
 ARG PYTHON=python3.10
 ARG PYTHON_VERSION=3.10.12
@@ -52,14 +53,12 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-RUN echo "deb https://apt.repos.neuron.amazonaws.com focal main" > /etc/apt/sources.list.d/neuron.list
-RUN wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
+# Copy Neuron artifacts into container for local installation
+RUN mkdir ${NEURON_ARTIFACT_PATH}
+COPY pip ${NEURON_ARTIFACT_PATH}/pip/
+COPY apt ${NEURON_ARTIFACT_PATH}/apt/
 
-RUN apt-get update \
- && apt-get install -y aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
+RUN apt-get install -y ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_TOOLS_VERSION}
 
 # https://github.com/docker-library/openjdk/issues/261 https://github.com/docker-library/openjdk/pull/263/files
 RUN keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt; \
@@ -82,7 +81,6 @@ RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases
     # Below 2 are included in miniconda base, but not mamba so need to install
     conda-content-trust \
     charset-normalizer \
-
  && /opt/conda/bin/conda clean -ya
 
 RUN conda install -c conda-forge \
@@ -107,12 +105,15 @@ RUN pip install --no-cache-dir -U \
     boto3 \
     cryptography
 
-RUN pip install neuron-cc==$NEURON_CC_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
-    torch-neuron==$NEURON_FRAMEWORK_VERSION \
+RUN pip install --find-links ${NEURON_ARTIFACT_PATH}/pip \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURON_CC_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURON_FRAMEWORK_VERSION} \
  && pip install -U protobuf==3.19.5 \
     torchserve==${TORCHSERVE_VERSION} \
     torch-model-archiver==${TORCHSERVE_VERSION} \
  && pip install --no-deps --no-cache-dir -U torchvision==0.14.*
+
+RUN rm -rf ${NEURON_ARTIFACT_PATH}
 
 RUN useradd -m model-server \
  && mkdir -p /home/model-server/tmp /opt/ml/model \
