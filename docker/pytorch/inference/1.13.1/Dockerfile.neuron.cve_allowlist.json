@@ -1,6 +1,6 @@
 {
     "CVE-2023-6237": {
-        "description": "Issue summary: Checking excessively long invalid RSA public keys may take\na long time.\n\nImpact summary: Applications that use the function EVP_PKEY_public_check()\nto check RSA public keys may experience long delays. Where the key that\nis being checked has been obtained from an untrusted source this may lead\nto a Denial of Service.\n\nWhen function EVP_PKEY_public_check() is called on RSA public keys,\na computation is done to confirm that the RSA modulus, n, is composite.\nFor valid RSA keys, n is a product of two or more large primes and this\ncomputation completes quickly. However, if n is an overly large prime,\nthen this computation would take a long time.\n\nAn application that calls EVP_PKEY_public_check() and supplies an RSA key\nobtained from an untrusted source could be vulnerable to a Denial of Service\nattack.\n\nThe function EVP_PKEY_public_check() is not called from other OpenSSL\nfunctions however it is called from the OpenSSL pkey command line\napplication. For that reason that application is also vulnerable",
+        "description": "Issue summary: Checking excessively long invalid RSA public keys may take a long time.\n\nImpact summary: Applications that use the function EVP_PKEY_public_check() to check RSA public keys may experience long delays. Where the key that is being checked has been obtained from an untrusted source this may lead to a Denial of Service.\n\nWhen function EVP_PKEY_public_check() is called on RSA public keys, a computation is done to confirm that the RSA modulus, n, is composite. For valid RSA keys, n is a product of two or more large primes and this computation completes quickly. However, if n is an overly large prime, then this computation would take a long time.\n\nAn application that calls EVP_PKEY_public_check() and supplies an RSA key obtained from an untrusted source could be vulnerable to a Denial of Service attack.\n\nThe function EVP_PKEY_public_check() is not called from other OpenSSL functions however it is called from the OpenSSL pkey command line application. For that reason that application is also vulnerable",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
@@ -17,35 +17,10 @@
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/pyOpenSSL-24.0.0.dist-info/METADATA",
+                "filePath": "opt/conda/lib/python3.10/site-packages/pyOpenSSL-24.2.1.dist-info/METADATA",
                 "name": "pyOpenSSL",
                 "packageManager": "PYTHONPKG",
-                "version": "24.0.0"
-            }
-        ]
-    },
-    "CVE-2024-2511": {
-        "description": "Issue summary: Some non-default TLS server configurations can cause unbounded\nmemory growth when processing TLSv1.3 sessions\n\nImpact summary: An attacker may exploit certain server configurations to trigger\nunbounded memory growth that would lead to a Denial of Service\n\nThis problem can occur in TLSv1.3 if the non-default SSL_OP_NO_TICKET option is\nbeing used (but not if early_data support is also configured and the default\nanti-replay protection is in use). In this case, under certain conditions, the\nsession cache can get into an incorrect state and it will fail to flush properly\nas it fills. The session cache will continue to grow in an unbounded manner. A\nmalicious client could deliberately create the scenario for this failure to\nforce a Denial of Service. It may also happen by accident in normal operation.\n\nThis issue only affects TLS servers supporting TLSv1.3. It does not affect TLS\nclients.\n\nThe FIPS modules in 3.2, 3.1 and 3.0 are not affected by this issue. OpenSSL\n1.0.2 is also not affected by this ",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "UNTRIAGED",
-        "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-2511",
-        "status": "CLOSED",
-        "title": "CVE-2024-2511 - pyOpenSSL",
-        "vulnerability_id": "CVE-2024-2511",
-        "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/pyOpenSSL-24.0.0.dist-info/METADATA",
-                "name": "pyOpenSSL",
-                "packageManager": "PYTHONPKG",
-                "version": "24.0.0"
+                "version": "24.2.1"
             }
         ]
     },
@@ -99,138 +74,8 @@
             }
         ]
     },
-    "CVE-2024-32002": {
-        "description": " Git is a revision control system. Prior to versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4, repositories with submodules can be crafted in a way that exploits a bug in Git whereby it can be fooled into writing files not into the submodule's worktree but into a `.git/` directory. This allows writing a hook that will be executed while the clone operation is still running, giving the user no opportunity to inspect the code that is being executed. The problem has been patched in versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4. If symbolic link support is disabled in Git (e.g. via `git config --global core.symlinks false`), the described attack won't work. As always, it is best to avoid cloning repositories from untrusted sources.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32002.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32002 - git",
-        "vulnerability_id": "CVE-2024-32002",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-32004": {
-        "description": " Git is a revision control system. Prior to versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4, an attacker can prepare a local repository in such a way that, when cloned, will execute arbitrary code during the operation. The problem has been patched in versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4. As a workaround, avoid cloning repositories from untrusted sources.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32004.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32004 - git",
-        "vulnerability_id": "CVE-2024-32004",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-32020": {
-        "description": " Git is a revision control system. Prior to versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4, local clones may end up hardlinking files into the target repository's object database when source and target repository reside on the same disk. If the source repository is owned by a different user, then those hardlinked files may be rewritten at any point in time by the untrusted user. Cloning local repositories will cause Git to either copy or hardlink files of the source repository into the target repository. This significantly speeds up such local clones compared to doing a \"proper\" clone and saves both disk space and compute time. When cloning a repository located on the same disk that is owned by a different user than the current user we also end up creating such hardlinks. These files will continue to be owned and controlled by the potentially-untrusted user and can be rewritten by them at will in the future. The problem has been patched in versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, ",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32020.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32020 - git",
-        "vulnerability_id": "CVE-2024-32020",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-32021": {
-        "description": " Git is a revision control system. Prior to versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4, when cloning a local source repository that contains symlinks via the filesystem, Git may create hardlinks to arbitrary user-readable files on the same filesystem as the target repository in the `objects/` directory. Cloning a local repository over the filesystem may creating hardlinks to arbitrary user-owned files on the same filesystem in the target Git repository's `objects/` directory. When cloning a repository over the filesystem (without explicitly specifying the `file://` protocol or `--no-local`), the optimizations for local cloning will be used, which include attempting to hard link the object files instead of copying them. While the code includes checks against symbolic links in the source repository, which were added during the fix for CVE-2022-39253, these checks can still be raced because the hard link operation ultimately follows symlinks. If the object on the filesystem appears as a ",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32021.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32021 - git",
-        "vulnerability_id": "CVE-2024-32021",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-32465": {
-        "description": " Git is a revision control system. The Git project recommends to avoid working in untrusted repositories, and instead to clone it first with `git clone --no-local` to obtain a clean copy. Git has specific protections to make that a safe operation even with an untrusted source repository, but vulnerabilities allow those protections to be bypassed. In the context of cloning local repositories owned by other users, this vulnerability has been covered in CVE-2024-32004. But there are circumstances where the fixes for CVE-2024-32004 are not enough: For example, when obtaining a `.zip` file containing a full copy of a Git repository, it should not be trusted by default to be safe, as e.g. hooks could be configured to run within the context of that repository. The problem has been patched in versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4. As a workaround, avoid using Git in repositories that have been obtained via archives from untrusted sources.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32465.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32465 - git",
-        "vulnerability_id": "CVE-2024-32465",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-34997": {
-        "description": "joblib v1.4.2 was discovered to contain a deserialization vulnerability via the component joblib.numpy_pickle::NumpyArrayWrapper().read_array().",
+    "CVE-2024-37891": {
+        "description": "urllib3 is a user-friendly HTTP client library for Python. When using urllib3's proxy support with `ProxyManager`, the `Proxy-Authorization` header is only sent to the configured proxy, as expected. However, when sending HTTP requests *without* using urllib3's proxy support, it's possible to accidentally configure the `Proxy-Authorization` header even though it won't have any effect as the request is not using a forwarding proxy or a tunneling proxy. In those cases, urllib3 doesn't treat the `Proxy-Authorization` HTTP header as one carrying authentication material and thus doesn't strip the header on cross-origin redirects. Because this is a highly unlikely scenario, we believe the severity of this vulnerability is low for almost all users. Out of an abundance of caution urllib3 will automatically strip the `Proxy-Authorization` header during cross-origin redirects to avoid the small chance that users are doing this on accident. Users should use urllib3's proxy support or disable automatic redirects to achiev",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
@@ -240,22 +85,22 @@
         "score_details": {},
         "severity": "UNTRIAGED",
         "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-34997",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-37891",
         "status": "ACTIVE",
-        "title": "CVE-2024-34997 - joblib",
-        "vulnerability_id": "CVE-2024-34997",
+        "title": "CVE-2024-37891 - urllib3",
+        "vulnerability_id": "CVE-2024-37891",
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/joblib-1.4.2.dist-info/METADATA",
-                "name": "joblib",
+                "filePath": "opt/conda/lib/python3.10/site-packages/urllib3-2.0.7.dist-info/METADATA",
+                "name": "urllib3",
                 "packageManager": "PYTHONPKG",
-                "version": "1.4.2"
+                "version": "2.0.7"
             }
         ]
     },
-    "CVE-2024-35195": {
-        "description": "Requests is a HTTP library. Prior to 2.32.0, when making requests through a Requests `Session`, if the first request is made with `verify=False` to disable cert verification, all subsequent requests to the same host will continue to ignore cert verification regardless of changes to the value of `verify`. This behavior will continue for the lifecycle of the connection in the connection pool. This vulnerability is fixed in 2.32.0.",
+    "CVE-2024-6345": {
+        "description": "A vulnerability in the package_index module of pypa/setuptools versions up to 69.1.1 allows for remote code execution via its download functions. These functions, which are used to download packages from URLs provided by users or retrieved from package index servers, are susceptible to code injection. If these functions are exposed to user-controlled inputs, such as package URLs, they can execute arbitrary commands on the system. The issue is fixed in version 70.0.",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
@@ -265,76 +110,17 @@
         "score_details": {},
         "severity": "UNTRIAGED",
         "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-35195",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-6345",
         "status": "ACTIVE",
-        "title": "CVE-2024-35195 - requests",
-        "vulnerability_id": "CVE-2024-35195",
+        "title": "CVE-2024-6345 - setuptools",
+        "vulnerability_id": "CVE-2024-6345",
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/requests-2.31.0.dist-info/METADATA",
-                "name": "requests",
+                "filePath": "opt/conda/lib/python3.10/site-packages/setuptools-69.5.1.dist-info/METADATA",
+                "name": "setuptools",
                 "packageManager": "PYTHONPKG",
-                "version": "2.31.0"
-            }
-        ]
-    },
-    "CVE-2024-3651": {
-        "description": " [potential DoS via resource consumption via specially crafted inputs to idna.encode()]",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-3651.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-3651 - python-idna, python3-idna",
-        "vulnerability_id": "CVE-2024-3651",
-        "vulnerable_packages": [
-            {
-                "arch": "ALL",
-                "epoch": 0,
-                "name": "python-idna",
-                "packageManager": "OS",
-                "release": "1",
-                "version": "2.8"
-            },
-            {
-                "arch": "ALL",
-                "epoch": 0,
-                "name": "python3-idna",
-                "packageManager": "OS",
-                "release": "1",
-                "version": "2.8"
-            }
-        ]
-    },
-    "CVE-2024-4603": {
-        "description": "Issue summary: Checking excessively long DSA keys or parameters may be very\nslow.\n\nImpact summary: Applications that use the functions EVP_PKEY_param_check()\nor EVP_PKEY_public_check() to check a DSA public key or DSA parameters may\nexperience long delays. Where the key or parameters that are being checked\nhave been obtained from an untrusted source this may lead to a Denial of\nService.\n\nThe functions EVP_PKEY_param_check() or EVP_PKEY_public_check() perform\nvarious checks on DSA parameters. Some of those computations take a long time\nif the modulus (`p` parameter) is too large.\n\nTrying to use a very large modulus is slow and OpenSSL will not allow using\npublic keys with a modulus which is over 10,000 bits in length for signature\nverification. However the key and parameter check functions do not limit\nthe modulus size when performing the checks.\n\nAn application that calls EVP_PKEY_param_check() or EVP_PKEY_public_check()\nand supplies a key or parameters obtained from an untrusted source could be\nvulnerable to",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "UNTRIAGED",
-        "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-4603",
-        "status": "ACTIVE",
-        "title": "CVE-2024-4603 - cryptography",
-        "vulnerability_id": "CVE-2024-4603",
-        "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/cryptography-42.0.7.dist-info/METADATA",
-                "name": "cryptography",
-                "packageManager": "PYTHONPKG",
-                "version": "42.0.7"
+                "version": "69.5.1"
             }
         ]
     }
