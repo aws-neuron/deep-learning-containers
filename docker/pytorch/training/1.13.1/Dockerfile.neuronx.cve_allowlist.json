@@ -1,4 +1,84 @@
 {
+    "CVE-2023-6730": {
+        "description": "Deserialization of Untrusted Data in GitHub repository huggingface/transformers prior to 4.36.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2023-6730",
+        "status": "ACTIVE",
+        "title": "CVE-2023-6730 - transformers, transformers",
+        "vulnerability_id": "CVE-2023-6730",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.31.0.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.31.0"
+            },
+            {
+                "epoch": 0,
+                "filePath": "requirements.txt",
+                "name": "transformers",
+                "packageManager": "PIP",
+                "version": "4.31.0"
+            }
+        ]
+    },
+    "CVE-2023-7018": {
+        "description": "Deserialization of Untrusted Data in GitHub repository huggingface/transformers prior to 4.36.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 7.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 7.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2023-7018",
+        "status": "ACTIVE",
+        "title": "CVE-2023-7018 - transformers, transformers",
+        "vulnerability_id": "CVE-2023-7018",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.31.0.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.31.0"
+            },
+            {
+                "epoch": 0,
+                "filePath": "requirements.txt",
+                "name": "transformers",
+                "packageManager": "PIP",
+                "version": "4.31.0"
+            }
+        ]
+    },
     "CVE-2024-31580": {
         "description": "PyTorch before v2.2.0 was discovered to contain a heap buffer overflow vulnerability in the component /runtime/vararg_functions.cpp. This vulnerability allows attackers to cause a Denial of Service (DoS) via a crafted input.",
         "remediation": {
@@ -46,136 +126,6 @@
                 "name": "torch",
                 "packageManager": "PYTHONPKG",
                 "version": "1.13.1"
-            }
-        ]
-    },
-    "CVE-2024-32002": {
-        "description": " Git is a revision control system. Prior to versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4, repositories with submodules can be crafted in a way that exploits a bug in Git whereby it can be fooled into writing files not into the submodule's worktree but into a `.git/` directory. This allows writing a hook that will be executed while the clone operation is still running, giving the user no opportunity to inspect the code that is being executed. The problem has been patched in versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4. If symbolic link support is disabled in Git (e.g. via `git config --global core.symlinks false`), the described attack won't work. As always, it is best to avoid cloning repositories from untrusted sources.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32002.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32002 - git",
-        "vulnerability_id": "CVE-2024-32002",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-32004": {
-        "description": " Git is a revision control system. Prior to versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4, an attacker can prepare a local repository in such a way that, when cloned, will execute arbitrary code during the operation. The problem has been patched in versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4. As a workaround, avoid cloning repositories from untrusted sources.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32004.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32004 - git",
-        "vulnerability_id": "CVE-2024-32004",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-32020": {
-        "description": " Git is a revision control system. Prior to versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4, local clones may end up hardlinking files into the target repository's object database when source and target repository reside on the same disk. If the source repository is owned by a different user, then those hardlinked files may be rewritten at any point in time by the untrusted user. Cloning local repositories will cause Git to either copy or hardlink files of the source repository into the target repository. This significantly speeds up such local clones compared to doing a \"proper\" clone and saves both disk space and compute time. When cloning a repository located on the same disk that is owned by a different user than the current user we also end up creating such hardlinks. These files will continue to be owned and controlled by the potentially-untrusted user and can be rewritten by them at will in the future. The problem has been patched in versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, ",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32020.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32020 - git",
-        "vulnerability_id": "CVE-2024-32020",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-32021": {
-        "description": " Git is a revision control system. Prior to versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4, when cloning a local source repository that contains symlinks via the filesystem, Git may create hardlinks to arbitrary user-readable files on the same filesystem as the target repository in the `objects/` directory. Cloning a local repository over the filesystem may creating hardlinks to arbitrary user-owned files on the same filesystem in the target Git repository's `objects/` directory. When cloning a repository over the filesystem (without explicitly specifying the `file://` protocol or `--no-local`), the optimizations for local cloning will be used, which include attempting to hard link the object files instead of copying them. While the code includes checks against symbolic links in the source repository, which were added during the fix for CVE-2022-39253, these checks can still be raced because the hard link operation ultimately follows symlinks. If the object on the filesystem appears as a ",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32021.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32021 - git",
-        "vulnerability_id": "CVE-2024-32021",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
-            }
-        ]
-    },
-    "CVE-2024-32465": {
-        "description": " Git is a revision control system. The Git project recommends to avoid working in untrusted repositories, and instead to clone it first with `git clone --no-local` to obtain a clean copy. Git has specific protections to make that a safe operation even with an untrusted source repository, but vulnerabilities allow those protections to be bypassed. In the context of cloning local repositories owned by other users, this vulnerability has been covered in CVE-2024-32004. But there are circumstances where the fixes for CVE-2024-32004 are not enough: For example, when obtaining a `.zip` file containing a full copy of a Git repository, it should not be trusted by default to be safe, as e.g. hooks could be configured to run within the context of that repository. The problem has been patched in versions 2.45.1, 2.44.1, 2.43.4, 2.42.2, 2.41.1, 2.40.2, and 2.39.4. As a workaround, avoid using Git in repositories that have been obtained via archives from untrusted sources.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32465.html",
-        "status": "ACTIVE",
-        "title": "CVE-2024-32465 - git",
-        "vulnerability_id": "CVE-2024-32465",
-        "vulnerable_packages": [
-            {
-                "arch": "AMD64",
-                "epoch": 1,
-                "name": "git",
-                "packageManager": "OS",
-                "release": "1ubuntu3.11",
-                "version": "2.25.1"
             }
         ]
     },
@@ -229,56 +179,6 @@
             }
         ]
     },
-    "CVE-2024-34997": {
-        "description": "joblib v1.4.2 was discovered to contain a deserialization vulnerability via the component joblib.numpy_pickle::NumpyArrayWrapper().read_array().",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "UNTRIAGED",
-        "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-34997",
-        "status": "ACTIVE",
-        "title": "CVE-2024-34997 - joblib",
-        "vulnerability_id": "CVE-2024-34997",
-        "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/joblib-1.4.2.dist-info/METADATA",
-                "name": "joblib",
-                "packageManager": "PYTHONPKG",
-                "version": "1.4.2"
-            }
-        ]
-    },
-    "CVE-2024-35195": {
-        "description": "Requests is a HTTP library. Prior to 2.32.0, when making requests through a Requests `Session`, if the first request is made with `verify=False` to disable cert verification, all subsequent requests to the same host will continue to ignore cert verification regardless of changes to the value of `verify`. This behavior will continue for the lifecycle of the connection in the connection pool. This vulnerability is fixed in 2.32.0.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "UNTRIAGED",
-        "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-35195",
-        "status": "ACTIVE",
-        "title": "CVE-2024-35195 - requests",
-        "vulnerability_id": "CVE-2024-35195",
-        "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/requests-2.31.0.dist-info/METADATA",
-                "name": "requests",
-                "packageManager": "PYTHONPKG",
-                "version": "2.31.0"
-            }
-        ]
-    },
     "CVE-2024-3568": {
         "description": "The huggingface/transformers library is vulnerable to arbitrary code execution through deserialization of untrusted data within the `load_repo_checkpoint()` function of the `TFPreTrainedModel()` class. Attackers can execute arbitrary code and commands by crafting a malicious serialized payload, exploiting the use of `pickle.load()` on data from potentially untrusted sources. This vulnerability allows for remote code execution (RCE) by deceiving victims into loading a seemingly harmless checkpoint during a normal training process, thereby enabling attackers to execute arbitrary code on the targeted machine.",
         "remediation": {
@@ -292,54 +192,67 @@
         "source": "NVD",
         "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-3568",
         "status": "ACTIVE",
-        "title": "CVE-2024-3568 - transformers",
+        "title": "CVE-2024-3568 - transformers, transformers",
         "vulnerability_id": "CVE-2024-3568",
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.36.2.dist-info/METADATA",
+                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.31.0.dist-info/METADATA",
                 "name": "transformers",
                 "packageManager": "PYTHONPKG",
-                "version": "4.36.2"
+                "version": "4.31.0"
+            },
+            {
+                "epoch": 0,
+                "filePath": "requirements.txt",
+                "name": "transformers",
+                "packageManager": "PIP",
+                "version": "4.31.0"
             }
         ]
     },
-    "CVE-2024-3651": {
-        "description": " [potential DoS via resource consumption via specially crafted inputs to idna.encode()]",
+    "CVE-2024-5452": {
+        "description": "A remote code execution (RCE) vulnerability exists in the lightning-ai/pytorch-lightning library version 2.2.1 due to improper handling of deserialized user input and mismanagement of dunder attributes by the `deepdiff` library. The library uses `deepdiff.Delta` objects to modify application state based on frontend actions. However, it is possible to bypass the intended restrictions on modifying dunder attributes, allowing an attacker to construct a serialized delta that passes the deserializer whitelist and contains dunder attributes. When processed, this can be exploited to access other modules, classes, and instances, leading to arbitrary attribute write and total RCE on any self-hosted pytorch-lightning application in its default configuration, as the delta endpoint is enabled by default.",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
             }
         },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "MEDIUM",
-        "source": "UBUNTU_CVE",
-        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-3651.html",
+        "score": 9.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 9.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "CRITICAL",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-5452",
         "status": "ACTIVE",
-        "title": "CVE-2024-3651 - python-idna, python3-idna",
-        "vulnerability_id": "CVE-2024-3651",
+        "title": "CVE-2024-5452 - pytorch-lightning, pytorch-lightning",
+        "vulnerability_id": "CVE-2024-5452",
         "vulnerable_packages": [
             {
-                "arch": "ALL",
                 "epoch": 0,
-                "name": "python-idna",
-                "packageManager": "OS",
-                "release": "1",
-                "version": "2.8"
+                "filePath": "usr/local/lib/python3.10/site-packages/pytorch_lightning-1.8.6.dist-info/METADATA",
+                "name": "pytorch-lightning",
+                "packageManager": "PYTHONPKG",
+                "version": "1.8.6"
             },
             {
-                "arch": "ALL",
                 "epoch": 0,
-                "name": "python3-idna",
-                "packageManager": "OS",
-                "release": "1",
-                "version": "2.8"
+                "filePath": "requirements.txt",
+                "name": "pytorch-lightning",
+                "packageManager": "PIP",
+                "version": "1.8.6"
             }
         ]
     },
-    "CVE-2024-4603": {
-        "description": "Issue summary: Checking excessively long DSA keys or parameters may be very\nslow.\n\nImpact summary: Applications that use the functions EVP_PKEY_param_check()\nor EVP_PKEY_public_check() to check a DSA public key or DSA parameters may\nexperience long delays. Where the key or parameters that are being checked\nhave been obtained from an untrusted source this may lead to a Denial of\nService.\n\nThe functions EVP_PKEY_param_check() or EVP_PKEY_public_check() perform\nvarious checks on DSA parameters. Some of those computations take a long time\nif the modulus (`p` parameter) is too large.\n\nTrying to use a very large modulus is slow and OpenSSL will not allow using\npublic keys with a modulus which is over 10,000 bits in length for signature\nverification. However the key and parameter check functions do not limit\nthe modulus size when performing the checks.\n\nAn application that calls EVP_PKEY_param_check() or EVP_PKEY_public_check()\nand supplies a key or parameters obtained from an untrusted source could be\nvulnerable to",
+    "CVE-2024-5980": {
+        "description": "A vulnerability in the /v1/runs API endpoint of lightning-ai/pytorch-lightning v2.2.4 allows attackers to exploit path traversal when extracting tar.gz files. When the LightningApp is running with the plugin_server, attackers can deploy malicious tar.gz plugins that embed arbitrary files with path traversal vulnerabilities. This can result in arbitrary files being written to any directory in the victim's local file system, potentially leading to remote code execution.",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
@@ -349,17 +262,24 @@
         "score_details": {},
         "severity": "UNTRIAGED",
         "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-4603",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-5980",
         "status": "ACTIVE",
-        "title": "CVE-2024-4603 - cryptography",
-        "vulnerability_id": "CVE-2024-4603",
+        "title": "CVE-2024-5980 - pytorch-lightning, pytorch-lightning",
+        "vulnerability_id": "CVE-2024-5980",
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/cryptography-42.0.7.dist-info/METADATA",
-                "name": "cryptography",
+                "filePath": "usr/local/lib/python3.10/site-packages/pytorch_lightning-1.8.6.dist-info/METADATA",
+                "name": "pytorch-lightning",
                 "packageManager": "PYTHONPKG",
-                "version": "42.0.7"
+                "version": "1.8.6"
+            },
+            {
+                "epoch": 0,
+                "filePath": "requirements.txt",
+                "name": "pytorch-lightning",
+                "packageManager": "PIP",
+                "version": "1.8.6"
             }
         ]
     }

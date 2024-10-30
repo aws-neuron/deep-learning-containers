@@ -7,7 +7,7 @@ LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 # Neuron SDK components version numbers
 ARG NEURONX_FRAMEWORK_VERSION=1.13.1.1.16.0
 ARG NEURONX_DISTRIBUTED_VERSION=0.9.0
-ARG NEURONX_CC_VERSION=2.15.128.0
+ARG NEURONX_CC_VERSION=2.15.141.0
 ARG NEURONX_TRANSFORMERS_VERSION=0.12.313
 ARG NEURONX_COLLECTIVES_LIB_VERSION=2.22.26.0-17a033bc8
 ARG NEURONX_RUNTIME_LIB_VERSION=2.22.14.0-6e27b8d5b
@@ -51,6 +51,7 @@ RUN apt-get update \
     unzip \
     zlib1g-dev \
     libcap-dev \
+    gnupg2 \
     gpg-agent \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \

@@ -47,6 +47,7 @@ RUN apt-get update \
     unzip \
     zlib1g-dev \
     libcap-dev \
+    gnupg2 \
     gpg-agent \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
