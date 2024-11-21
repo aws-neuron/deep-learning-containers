@@ -1,81 +1,34 @@
 {
-    "CVE-2023-6730": {
-        "description": "Deserialization of Untrusted Data in GitHub repository huggingface/transformers prior to 4.36.",
+    "CVE-2022-40897": {
+        "description": "Python Packaging Authority (PyPA) setuptools before 65.5.1 allows remote attackers to cause a denial of service via HTML in a crafted package or custom PackageIndex page. There is a Regular Expression Denial of Service (ReDoS) in package_index.py.",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
             }
         },
-        "score": 8.8,
+        "score": 5.9,
         "score_details": {
             "cvss": {
                 "adjustments": [],
-                "score": 8.8,
+                "score": 5.9,
                 "scoreSource": "NVD",
-                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+                "scoringVector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
                 "version": "3.1"
             }
         },
-        "severity": "HIGH",
+        "severity": "MEDIUM",
         "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2023-6730",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2022-40897",
         "status": "ACTIVE",
-        "title": "CVE-2023-6730 - transformers, transformers",
-        "vulnerability_id": "CVE-2023-6730",
+        "title": "CVE-2022-40897 - setuptools",
+        "vulnerability_id": "CVE-2022-40897",
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.31.0.dist-info/METADATA",
-                "name": "transformers",
+                "filePath": "usr/local/lib/python3.10/site-packages/setuptools-59.5.0.dist-info/METADATA",
+                "name": "setuptools",
                 "packageManager": "PYTHONPKG",
-                "version": "4.31.0"
-            },
-            {
-                "epoch": 0,
-                "filePath": "requirements.txt",
-                "name": "transformers",
-                "packageManager": "PIP",
-                "version": "4.31.0"
-            }
-        ]
-    },
-    "CVE-2023-7018": {
-        "description": "Deserialization of Untrusted Data in GitHub repository huggingface/transformers prior to 4.36.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 7.8,
-        "score_details": {
-            "cvss": {
-                "adjustments": [],
-                "score": 7.8,
-                "scoreSource": "NVD",
-                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
-                "version": "3.1"
-            }
-        },
-        "severity": "HIGH",
-        "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2023-7018",
-        "status": "ACTIVE",
-        "title": "CVE-2023-7018 - transformers, transformers",
-        "vulnerability_id": "CVE-2023-7018",
-        "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.31.0.dist-info/METADATA",
-                "name": "transformers",
-                "packageManager": "PYTHONPKG",
-                "version": "4.31.0"
-            },
-            {
-                "epoch": 0,
-                "filePath": "requirements.txt",
-                "name": "transformers",
-                "packageManager": "PIP",
-                "version": "4.31.0"
+                "version": "59.5.0"
             }
         ]
     },
@@ -197,17 +150,17 @@
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.31.0.dist-info/METADATA",
+                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.36.0.dist-info/METADATA",
                 "name": "transformers",
                 "packageManager": "PYTHONPKG",
-                "version": "4.31.0"
+                "version": "4.36.0"
             },
             {
                 "epoch": 0,
                 "filePath": "requirements.txt",
                 "name": "transformers",
                 "packageManager": "PIP",
-                "version": "4.31.0"
+                "version": "4.36.0"
             }
         ]
     },
@@ -280,6 +233,31 @@
                 "name": "pytorch-lightning",
                 "packageManager": "PIP",
                 "version": "1.8.6"
+            }
+        ]
+    },
+    "CVE-2024-6345": {
+        "description": "A vulnerability in the package_index module of pypa/setuptools versions up to 69.1.1 allows for remote code execution via its download functions. These functions, which are used to download packages from URLs provided by users or retrieved from package index servers, are susceptible to code injection. If these functions are exposed to user-controlled inputs, such as package URLs, they can execute arbitrary commands on the system. The issue is fixed in version 70.0.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-6345",
+        "status": "ACTIVE",
+        "title": "CVE-2024-6345 - setuptools",
+        "vulnerability_id": "CVE-2024-6345",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/setuptools-59.5.0.dist-info/METADATA",
+                "name": "setuptools",
+                "packageManager": "PYTHONPKG",
+                "version": "59.5.0"
             }
         ]
     }
