@@ -1,6 +1,105 @@
 {
-    "CVE-2024-2511": {
-        "description": "Issue summary: Some non-default TLS server configurations can cause unbounded memory growth when processing TLSv1.3 sessions\n\nImpact summary: An attacker may exploit certain server configurations to trigger unbounded memory growth that would lead to a Denial of Service\n\nThis problem can occur in TLSv1.3 if the non-default SSL_OP_NO_TICKET option is being used (but not if early_data support is also configured and the default anti-replay protection is in use). In this case, under certain conditions, the session cache can get into an incorrect state and it will fail to flush properly as it fills. The session cache will continue to grow in an unbounded manner. A malicious client could deliberately create the scenario for this failure to force a Denial of Service. It may also happen by accident in normal operation.\n\nThis issue only affects TLS servers supporting TLSv1.3. It does not affect TLS clients.\n\nThe FIPS modules in 3.2, 3.1 and 3.0 are not affected by this issue. OpenSSL 1.0.2 is also not affected by this ",
+    "CVE-2024-11392": {
+        "description": "Hugging Face Transformers MobileViTV2 Deserialization of Untrusted Data Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Hugging Face Transformers. User interaction is required to exploit this vulnerability in that the target must visit a malicious page or open a malicious file.\n\nThe specific flaw exists within the handling of configuration files. The issue results from the lack of proper validation of user-supplied data, which can result in deserialization of untrusted data. An attacker can leverage this vulnerability to execute code in the context of the current user. Was ZDI-CAN-24322.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11392",
+        "status": "ACTIVE",
+        "title": "CVE-2024-11392 - transformers",
+        "vulnerability_id": "CVE-2024-11392",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.46.3.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.46.3"
+            }
+        ]
+    },
+    "CVE-2024-11393": {
+        "description": "Hugging Face Transformers MaskFormer Model Deserialization of Untrusted Data Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Hugging Face Transformers. User interaction is required to exploit this vulnerability in that the target must visit a malicious page or open a malicious file.\n\nThe specific flaw exists within the parsing of model files. The issue results from the lack of proper validation of user-supplied data, which can result in deserialization of untrusted data. An attacker can leverage this vulnerability to execute code in the context of the current user. Was ZDI-CAN-25191.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11393",
+        "status": "ACTIVE",
+        "title": "CVE-2024-11393 - transformers",
+        "vulnerability_id": "CVE-2024-11393",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.46.3.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.46.3"
+            }
+        ]
+    },
+    "CVE-2024-11394": {
+        "description": "Hugging Face Transformers Trax Model Deserialization of Untrusted Data Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Hugging Face Transformers. User interaction is required to exploit this vulnerability in that the target must visit a malicious page or open a malicious file.\n\nThe specific flaw exists within the handling of model files. The issue results from the lack of proper validation of user-supplied data, which can result in deserialization of untrusted data. An attacker can leverage this vulnerability to execute code in the context of the current user. Was ZDI-CAN-25012.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11394",
+        "status": "ACTIVE",
+        "title": "CVE-2024-11394 - transformers",
+        "vulnerability_id": "CVE-2024-11394",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.46.3.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.46.3"
+            }
+        ]
+    },
+    "CVE-2023-6237": {
+        "description": "Issue summary: Checking excessively long invalid RSA public keys may take a long time.\n\nImpact summary: Applications that use the function EVP_PKEY_public_check() to check RSA public keys may experience long delays. Where the key that is being checked has been obtained from an untrusted source this may lead to a Denial of Service.\n\nWhen function EVP_PKEY_public_check() is called on RSA public keys, a computation is done to confirm that the RSA modulus, n, is composite. For valid RSA keys, n is a product of two or more large primes and this computation completes quickly. However, if n is an overly large prime, then this computation would take a long time.\n\nAn application that calls EVP_PKEY_public_check() and supplies an RSA key obtained from an untrusted source could be vulnerable to a Denial of Service attack.\n\nThe function EVP_PKEY_public_check() is not called from other OpenSSL functions however it is called from the OpenSSL pkey command line application. For that reason that application is also vulnerable",
         "remediation": {
             "recommendation": {
                 "text": "None Provided"
@@ -10,10 +109,10 @@
         "score_details": {},
         "severity": "UNTRIAGED",
         "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-2511",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2023-6237",
         "status": "ACTIVE",
-        "title": "CVE-2024-2511 - pyOpenSSL",
-        "vulnerability_id": "CVE-2024-2511",
+        "title": "CVE-2023-6237 - pyOpenSSL",
+        "vulnerability_id": "CVE-2023-6237",
         "vulnerable_packages": [
             {
                 "epoch": 0,

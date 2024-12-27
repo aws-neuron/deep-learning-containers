@@ -1,0 +1,27 @@
+{
+    "CVE-2024-35195": {
+        "description": "Requests is a HTTP library. Prior to 2.32.0, when making requests through a Requests `Session`, if the first request is made with `verify=False` to disable cert verification, all subsequent requests to the same host will continue to ignore cert verification regardless of changes to the value of `verify`. This behavior will continue for the lifecycle of the connection in the connection pool. This vulnerability is fixed in 2.32.0.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-35195",
+        "status": "ACTIVE",
+        "title": "CVE-2024-35195 - requests",
+        "vulnerability_id": "CVE-2024-35195",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/requests-2.31.0.dist-info/METADATA",
+                "name": "requests",
+                "packageManager": "PYTHONPKG",
+                "version": "2.31.0"
+            }
+        ]
+    }
+}

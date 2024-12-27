@@ -1,4 +1,157 @@
 {
+    "CVE-2022-40897": {
+        "description": "Python Packaging Authority (PyPA) setuptools before 65.5.1 allows remote attackers to cause a denial of service via HTML in a crafted package or custom PackageIndex page. There is a Regular Expression Denial of Service (ReDoS) in package_index.py.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 5.9,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 5.9,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2022-40897",
+        "status": "ACTIVE",
+        "title": "CVE-2022-40897 - setuptools",
+        "vulnerability_id": "CVE-2022-40897",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/setuptools-59.5.0.dist-info/METADATA",
+                "name": "setuptools",
+                "packageManager": "PYTHONPKG",
+                "version": "59.5.0"
+            }
+        ]
+    },
+    "CVE-2024-11392": {
+        "description": "Hugging Face Transformers MobileViTV2 Deserialization of Untrusted Data Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Hugging Face Transformers. User interaction is required to exploit this vulnerability in that the target must visit a malicious page or open a malicious file.\n\nThe specific flaw exists within the handling of configuration files. The issue results from the lack of proper validation of user-supplied data, which can result in deserialization of untrusted data. An attacker can leverage this vulnerability to execute code in the context of the current user. Was ZDI-CAN-24322.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11392",
+        "status": "ACTIVE",
+        "title": "CVE-2024-11392 - transformers, transformers",
+        "vulnerability_id": "CVE-2024-11392",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.36.0.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.36.0"
+            },
+            {
+                "epoch": 0,
+                "filePath": "requirements.txt",
+                "name": "transformers",
+                "packageManager": "PIP",
+                "version": "4.36.0"
+            }
+        ]
+    },
+    "CVE-2024-11393": {
+        "description": "Hugging Face Transformers MaskFormer Model Deserialization of Untrusted Data Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Hugging Face Transformers. User interaction is required to exploit this vulnerability in that the target must visit a malicious page or open a malicious file.\n\nThe specific flaw exists within the parsing of model files. The issue results from the lack of proper validation of user-supplied data, which can result in deserialization of untrusted data. An attacker can leverage this vulnerability to execute code in the context of the current user. Was ZDI-CAN-25191.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11393",
+        "status": "ACTIVE",
+        "title": "CVE-2024-11393 - transformers, transformers",
+        "vulnerability_id": "CVE-2024-11393",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.36.0.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.36.0"
+            },
+            {
+                "epoch": 0,
+                "filePath": "requirements.txt",
+                "name": "transformers",
+                "packageManager": "PIP",
+                "version": "4.36.0"
+            }
+        ]
+    },
+    "CVE-2024-11394": {
+        "description": "Hugging Face Transformers Trax Model Deserialization of Untrusted Data Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Hugging Face Transformers. User interaction is required to exploit this vulnerability in that the target must visit a malicious page or open a malicious file.\n\nThe specific flaw exists within the handling of model files. The issue results from the lack of proper validation of user-supplied data, which can result in deserialization of untrusted data. An attacker can leverage this vulnerability to execute code in the context of the current user. Was ZDI-CAN-25012.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "NVD",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11394",
+        "status": "ACTIVE",
+        "title": "CVE-2024-11394 - transformers, transformers",
+        "vulnerability_id": "CVE-2024-11394",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/transformers-4.36.0.dist-info/METADATA",
+                "name": "transformers",
+                "packageManager": "PYTHONPKG",
+                "version": "4.36.0"
+            },
+            {
+                "epoch": 0,
+                "filePath": "requirements.txt",
+                "name": "transformers",
+                "packageManager": "PIP",
+                "version": "4.36.0"
+            }
+        ]
+    },
     "CVE-2024-31580": {
         "description": "PyTorch before v2.2.0 was discovered to contain a heap buffer overflow vulnerability in the component /runtime/vararg_functions.cpp. This vulnerability allows attackers to cause a Denial of Service (DoS) via a crafted input.",
         "remediation": {
@@ -17,10 +170,10 @@
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/torch-1.13.1.dist-info/METADATA",
+                "filePath": "usr/local/lib/python3.10/site-packages/torch-2.1.2.dist-info/METADATA",
                 "name": "torch",
                 "packageManager": "PYTHONPKG",
-                "version": "1.13.1"
+                "version": "2.1.2"
             }
         ]
     },
@@ -42,10 +195,10 @@
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "usr/local/lib/python3.10/site-packages/torch-1.13.1.dist-info/METADATA",
+                "filePath": "usr/local/lib/python3.10/site-packages/torch-2.1.2.dist-info/METADATA",
                 "name": "torch",
                 "packageManager": "PYTHONPKG",
-                "version": "1.13.1"
+                "version": "2.1.2"
             }
         ]
     },
@@ -200,6 +353,31 @@
                 "name": "pytorch-lightning",
                 "packageManager": "PIP",
                 "version": "1.8.6"
+            }
+        ]
+    },
+    "CVE-2024-6345": {
+        "description": "A vulnerability in the package_index module of pypa/setuptools versions up to 69.1.1 allows for remote code execution via its download functions. These functions, which are used to download packages from URLs provided by users or retrieved from package index servers, are susceptible to code injection. If these functions are exposed to user-controlled inputs, such as package URLs, they can execute arbitrary commands on the system. The issue is fixed in version 70.0.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "NVD",
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-6345",
+        "status": "ACTIVE",
+        "title": "CVE-2024-6345 - setuptools",
+        "vulnerability_id": "CVE-2024-6345",
+        "vulnerable_packages": [
+            {
+                "epoch": 0,
+                "filePath": "usr/local/lib/python3.10/site-packages/setuptools-59.5.0.dist-info/METADATA",
+                "name": "setuptools",
+                "packageManager": "PYTHONPKG",
+                "version": "59.5.0"
             }
         ]
     }
