@@ -20,11 +20,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: hadolint/hadolint-action@v3.1.0
         with:
-          dockerfile: Dockerfile.neuron
-          recursive: true
-          failure-threshold: error # TODO: enable more linter rules other than error.
-      - uses: hadolint/hadolint-action@v3.1.0
-        with:
           dockerfile: Dockerfile.neuronx
           recursive: true
           failure-threshold: error
