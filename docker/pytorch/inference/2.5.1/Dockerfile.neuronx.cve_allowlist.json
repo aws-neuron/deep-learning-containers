@@ -25,10 +25,10 @@
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.46.3.dist-info/METADATA",
+                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.45.2.dist-info/METADATA",
                 "name": "transformers",
                 "packageManager": "PYTHONPKG",
-                "version": "4.46.3"
+                "version": "4.45.2"
             }
         ]
     },
@@ -58,10 +58,10 @@
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.46.3.dist-info/METADATA",
+                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.45.2.dist-info/METADATA",
                 "name": "transformers",
                 "packageManager": "PYTHONPKG",
-                "version": "4.46.3"
+                "version": "4.45.2"
             }
         ]
     },
@@ -91,85 +91,10 @@
         "vulnerable_packages": [
             {
                 "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.46.3.dist-info/METADATA",
+                "filePath": "opt/conda/lib/python3.10/site-packages/transformers-4.45.2.dist-info/METADATA",
                 "name": "transformers",
                 "packageManager": "PYTHONPKG",
-                "version": "4.46.3"
-            }
-        ]
-    },
-    "CVE-2023-6237": {
-        "description": "Issue summary: Checking excessively long invalid RSA public keys may take a long time.\n\nImpact summary: Applications that use the function EVP_PKEY_public_check() to check RSA public keys may experience long delays. Where the key that is being checked has been obtained from an untrusted source this may lead to a Denial of Service.\n\nWhen function EVP_PKEY_public_check() is called on RSA public keys, a computation is done to confirm that the RSA modulus, n, is composite. For valid RSA keys, n is a product of two or more large primes and this computation completes quickly. However, if n is an overly large prime, then this computation would take a long time.\n\nAn application that calls EVP_PKEY_public_check() and supplies an RSA key obtained from an untrusted source could be vulnerable to a Denial of Service attack.\n\nThe function EVP_PKEY_public_check() is not called from other OpenSSL functions however it is called from the OpenSSL pkey command line application. For that reason that application is also vulnerable",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "UNTRIAGED",
-        "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2023-6237",
-        "status": "ACTIVE",
-        "title": "CVE-2023-6237 - pyOpenSSL",
-        "vulnerability_id": "CVE-2023-6237",
-        "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/pyOpenSSL-24.2.1.dist-info/METADATA",
-                "name": "pyOpenSSL",
-                "packageManager": "PYTHONPKG",
-                "version": "24.2.1"
-            }
-        ]
-    },
-    "CVE-2024-31580": {
-        "description": "PyTorch before v2.2.0 was discovered to contain a heap buffer overflow vulnerability in the component /runtime/vararg_functions.cpp. This vulnerability allows attackers to cause a Denial of Service (DoS) via a crafted input.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "UNTRIAGED",
-        "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-31580",
-        "status": "ACTIVE",
-        "title": "CVE-2024-31580 - torch",
-        "vulnerability_id": "CVE-2024-31580",
-        "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/torch-2.1.2.dist-info/METADATA",
-                "name": "torch",
-                "packageManager": "PYTHONPKG",
-                "version": "2.1.2"
-            }
-        ]
-    },
-    "CVE-2024-31583": {
-        "description": "Pytorch before version v2.2.0 was discovered to contain a use-after-free vulnerability in torch/csrc/jit/mobile/interpreter.cpp.",
-        "remediation": {
-            "recommendation": {
-                "text": "None Provided"
-            }
-        },
-        "score": 0.0,
-        "score_details": {},
-        "severity": "UNTRIAGED",
-        "source": "NVD",
-        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2024-31583",
-        "status": "ACTIVE",
-        "title": "CVE-2024-31583 - torch",
-        "vulnerability_id": "CVE-2024-31583",
-        "vulnerable_packages": [
-            {
-                "epoch": 0,
-                "filePath": "opt/conda/lib/python3.10/site-packages/torch-2.1.2.dist-info/METADATA",
-                "name": "torch",
-                "packageManager": "PYTHONPKG",
-                "version": "2.1.2"
+                "version": "4.45.2"
             }
         ]
     },

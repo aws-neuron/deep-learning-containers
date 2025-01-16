@@ -1,4 +1,2654 @@
 {
+    "CVE-2019-11471": {
+        "description": "libheif 1.4.0 has a use-after-free in heif::HeifContext::Image::set_alpha_channel in heif_context.h because heif_context.cc mishandles references to non-existing alpha images.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.0"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2019/CVE-2019-11471.html",
+        "status": "ACTIVE",
+        "title": "CVE-2019-11471 - libheif1",
+        "vulnerability_id": "CVE-2019-11471",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libheif1",
+                "packageManager": "OS",
+                "release": "2build1",
+                "version": "1.12.0"
+            }
+        ]
+    },
+    "CVE-2020-20898": {
+        "description": "Integer Overflow vulnerability in function filter16_prewitt in libavfilter/vf_convolution.c in Ffmpeg 4.2.1, allows attackers to cause a Denial of Service or other unspecified impacts.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2020/CVE-2020-20898.html",
+        "status": "ACTIVE",
+        "title": "CVE-2020-20898 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2020-20898",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2020-22038": {
+        "description": "A Denial of Service vulnerability exists in FFmpeg 4.2 due to a memory leak in the ff_v4l2_m2m_create_context function in v4l2_m2m.c.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 6.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 6.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2020/CVE-2020-22038.html",
+        "status": "ACTIVE",
+        "title": "CVE-2020-22038 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2020-22038",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2020-23109": {
+        "description": "Buffer overflow vulnerability in function convert_colorspace in heif_colorconversion.cc in libheif v1.6.2, allows attackers to cause a denial of service and disclose sensitive information, via a crafted HEIF file.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.1,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.1,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2020/CVE-2020-23109.html",
+        "status": "ACTIVE",
+        "title": "CVE-2020-23109 - libheif1",
+        "vulnerability_id": "CVE-2020-23109",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libheif1",
+                "packageManager": "OS",
+                "release": "2build1",
+                "version": "1.12.0"
+            }
+        ]
+    },
+    "CVE-2021-20296": {
+        "description": "A flaw was found in OpenEXR in versions before 3.0.0-beta. A crafted input file supplied by an attacker, that is processed by the Dwa decompression functionality of OpenEXR's IlmImf library, could cause a NULL pointer dereference. The highest threat from this vulnerability is to system availability.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 5.3,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 5.3,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-20296.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-20296 - libopenexr25, openexr",
+        "vulnerability_id": "CVE-2021-20296",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libopenexr25",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "openexr",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            }
+        ]
+    },
+    "CVE-2021-23215": {
+        "description": "An integer overflow leading to a heap-buffer overflow was found in the DwaCompressor of OpenEXR in versions before 3.0.1. An attacker could use this flaw to crash an application compiled with OpenEXR.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 5.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 5.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-23215.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-23215 - libopenexr25, openexr",
+        "vulnerability_id": "CVE-2021-23215",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libopenexr25",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "openexr",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            }
+        ]
+    },
+    "CVE-2021-26260": {
+        "description": "An integer overflow leading to a heap-buffer overflow was found in the DwaCompressor of OpenEXR in versions before 3.0.1. An attacker could use this flaw to crash an application compiled with OpenEXR. This is a different flaw from CVE-2021-23215.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 5.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 5.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-26260.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-26260 - libopenexr25, openexr",
+        "vulnerability_id": "CVE-2021-26260",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libopenexr25",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "openexr",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            }
+        ]
+    },
+    "CVE-2021-3598": {
+        "description": "There's a flaw in OpenEXR's ImfDeepScanLineInputFile functionality in versions prior to 3.0.5. An attacker who is able to submit a crafted file to an application linked with OpenEXR could cause an out-of-bounds read. The greatest risk from this flaw is to application availability.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 5.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 5.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3598.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-3598 - libopenexr25, openexr",
+        "vulnerability_id": "CVE-2021-3598",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libopenexr25",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "openexr",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            }
+        ]
+    },
+    "CVE-2021-3605": {
+        "description": "There's a flaw in OpenEXR's rleUncompress functionality in versions prior to 3.0.5. An attacker who is able to submit a crafted file to an application linked with OpenEXR could cause an out-of-bounds read. The greatest risk from this flaw is to application availability.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 5.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 5.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3605.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-3605 - libopenexr25, openexr",
+        "vulnerability_id": "CVE-2021-3605",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libopenexr25",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "openexr",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            }
+        ]
+    },
+    "CVE-2021-38090": {
+        "description": "Integer Overflow vulnerability in function filter16_roberts in libavfilter/vf_convolution.c in Ffmpeg 4.2.1, allows attackers to cause a Denial of Service or other unspecified impacts.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-38090.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-38090 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2021-38090",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2021-38091": {
+        "description": "Integer Overflow vulnerability in function filter16_sobel in libavfilter/vf_convolution.c in Ffmpeg 4.2.1, allows attackers to cause a Denial of Service or other unspecified impacts.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-38091.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-38091 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2021-38091",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2021-38092": {
+        "description": "Integer Overflow vulnerability in function filter_prewitt in libavfilter/vf_convolution.c in Ffmpeg 4.2.1, allows attackers to cause a Denial of Service or other unspecified impacts.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-38092.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-38092 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2021-38092",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2021-38093": {
+        "description": "Integer Overflow vulnerability in function filter_robert in libavfilter/vf_convolution.c in Ffmpeg 4.2.1, allows attackers to cause a Denial of Service or other unspecified impacts.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-38093.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-38093 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2021-38093",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2021-38094": {
+        "description": "Integer Overflow vulnerability in function filter_sobel in libavfilter/vf_convolution.c in Ffmpeg 4.2.1, allows attackers to cause a Denial of Service or other unspecified impacts.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-38094.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-38094 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2021-38094",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2021-3933": {
+        "description": "An integer overflow could occur when OpenEXR processes a crafted file on systems where size_t < 64 bits. This could cause an invalid bytesPerLine and maxBytesPerLine value, which could lead to problems with application stability or lead to other attack paths.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 5.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 5.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3933.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-3933 - libopenexr25, openexr",
+        "vulnerability_id": "CVE-2021-3933",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libopenexr25",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "openexr",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            }
+        ]
+    },
+    "CVE-2021-3941": {
+        "description": "In ImfChromaticities.cpp routine RGBtoXYZ(), there are some division operations such as `float Z = (1 - chroma.white.x - chroma.white.y) * Y / chroma.white.y;` and `chroma.green.y * (X + Z))) / d;` but the divisor is not checked for a 0 value. A specially crafted file could trigger a divide-by-zero condition which could affect the availability of programs linked with OpenEXR.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 6.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 6.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3941.html",
+        "status": "ACTIVE",
+        "title": "CVE-2021-3941 - libopenexr25, openexr",
+        "vulnerability_id": "CVE-2021-3941",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libopenexr25",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "openexr",
+                "packageManager": "OS",
+                "release": "1",
+                "version": "2.5.7"
+            }
+        ]
+    },
+    "CVE-2022-3109": {
+        "description": "An issue was discovered in the FFmpeg package, where vp3_decode_frame in libavcodec/vp3.c lacks check of the return value of av_malloc() and will cause a null pointer dereference, impacting availability.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 7.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 7.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2022/CVE-2022-3109.html",
+        "status": "ACTIVE",
+        "title": "CVE-2022-3109 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2022-3109",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2022-3341": {
+        "description": "A null pointer dereference issue was discovered in 'FFmpeg' in decode_main_header() function of libavformat/nutdec.c file. The flaw occurs because the function lacks check of the return value of avformat_new_stream() and triggers the null pointer dereference error, causing an application to crash.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 5.3,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 5.3,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2022/CVE-2022-3341.html",
+        "status": "ACTIVE",
+        "title": "CVE-2022-3341 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2022-3341",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2022-3964": {
+        "description": "A vulnerability classified as problematic has been found in ffmpeg. This affects an unknown part of the file libavcodec/rpzaenc.c of the component QuickTime RPZA Video Encoder. The manipulation of the argument y_size leads to out-of-bounds read. It is possible to initiate the attack remotely. The name of the patch is 92f9b28ed84a77138105475beba16c146bdaf984. It is recommended to apply a patch to fix this issue. The associated identifier of this vulnerability is VDB-213543.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.1,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.1,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2022/CVE-2022-3964.html",
+        "status": "ACTIVE",
+        "title": "CVE-2022-3964 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2022-3964",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2022-3965": {
+        "description": "A vulnerability classified as problematic was found in ffmpeg. This vulnerability affects the function smc_encode_stream of the file libavcodec/smcenc.c of the component QuickTime Graphics Video Encoder. The manipulation of the argument y_size leads to out-of-bounds read. The attack can be initiated remotely. The name of the patch is 13c13109759090b7f7182480d075e13b36ed8edd. It is recommended to apply a patch to fix this issue. The identifier of this vulnerability is VDB-213544.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.1,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.1,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2022/CVE-2022-3965.html",
+        "status": "ACTIVE",
+        "title": "CVE-2022-3965 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2022-3965",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2022-48434": {
+        "description": "libavcodec/pthread_frame.c in FFmpeg before 5.1.2, as used in VLC and other products, leaves stale hwaccel state in worker threads, which allows attackers to trigger a use-after-free and execute arbitrary code in some circumstances (e.g., hardware re-initialization upon a mid-video SPS change when Direct3D11 is used).",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.1,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.1,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2022/CVE-2022-48434.html",
+        "status": "ACTIVE",
+        "title": "CVE-2022-48434 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2022-48434",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-0996": {
+        "description": "There is a vulnerability in the strided image data parsing code in the emscripten wrapper for libheif. An attacker could exploit this through a crafted image file to cause a buffer overflow in linear memory during a memcpy call.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 7.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 7.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-0996.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-0996 - libheif1",
+        "vulnerability_id": "CVE-2023-0996",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libheif1",
+                "packageManager": "OS",
+                "release": "2build1",
+                "version": "1.12.0"
+            }
+        ]
+    },
+    "CVE-2023-29659": {
+        "description": "A Segmentation fault caused by a floating point exception exists in libheif 1.15.1 using crafted heif images via the heif::Fraction::round() function in box.cc, which causes a denial of service.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 6.5,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 6.5,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-29659.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-29659 - libheif1",
+        "vulnerability_id": "CVE-2023-29659",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libheif1",
+                "packageManager": "OS",
+                "release": "2build1",
+                "version": "1.12.0"
+            }
+        ]
+    },
+    "CVE-2023-41915": {
+        "description": "OpenPMIx PMIx before 4.2.6 and 5.0.x before 5.0.1 allows attackers to obtain ownership of arbitrary files via a race condition during execution of library code with UID 0.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.1,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.1,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-41915.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-41915 - libpmix2",
+        "vulnerability_id": "CVE-2023-41915",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libpmix2",
+                "packageManager": "OS",
+                "release": "2ubuntu1",
+                "version": "4.1.2"
+            }
+        ]
+    },
+    "CVE-2023-49460": {
+        "description": "libheif v1.17.5 was discovered to contain a segmentation violation via the function UncompressedImageCodec::decode_uncompressed_image.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-49460.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-49460 - libheif1",
+        "vulnerability_id": "CVE-2023-49460",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libheif1",
+                "packageManager": "OS",
+                "release": "2build1",
+                "version": "1.12.0"
+            }
+        ]
+    },
+    "CVE-2023-49462": {
+        "description": "libheif v1.17.5 was discovered to contain a segmentation violation via the component /libheif/exif.cc.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-49462.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-49462 - libheif1",
+        "vulnerability_id": "CVE-2023-49462",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libheif1",
+                "packageManager": "OS",
+                "release": "2build1",
+                "version": "1.12.0"
+            }
+        ]
+    },
+    "CVE-2023-49463": {
+        "description": "libheif v1.17.5 was discovered to contain a segmentation violation via the function find_exif_tag at /libheif/exif.cc.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-49463.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-49463 - libheif1",
+        "vulnerability_id": "CVE-2023-49463",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libheif1",
+                "packageManager": "OS",
+                "release": "2build1",
+                "version": "1.12.0"
+            }
+        ]
+    },
+    "CVE-2023-49464": {
+        "description": "libheif v1.17.5 was discovered to contain a segmentation violation via the function UncompressedImageCodec::get_luma_bits_per_pixel_from_configuration_unci.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 8.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 8.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-49464.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-49464 - libheif1",
+        "vulnerability_id": "CVE-2023-49464",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libheif1",
+                "packageManager": "OS",
+                "release": "2build1",
+                "version": "1.12.0"
+            }
+        ]
+    },
+    "CVE-2023-49501": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.n6.1-3-g466799d4f5 allows a local attacker to execute arbitrary code via the config_eq_output function in the libavfilter/asrc_afirsrc.c:495:30 component.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-49501.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-49501 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-49501",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-49502": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.n6.1-3-g466799d4f5 allows a local attacker to execute arbitrary code via the ff_bwdif_filter_intra_c function in the libavfilter/bwdifdsp.c:125:5 component.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-49502.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-49502 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-49502",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-49528": {
+        "description": "Buffer Overflow vulnerability in FFmpeg version n6.1-3-g466799d4f5, allows a local attacker to execute arbitrary code and cause a denial of service (DoS) via the af_dialoguenhance.c:261:5 in the de_stereo component.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-49528.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-49528 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-49528",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-50007": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.n6.1-3-g466799d4f5 allows a local attacker to execute arbitrary code via theav_samples_set_silence function in thelibavutil/samplefmt.c:260:9 component.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-50007.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-50007 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-50007",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-50008": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.n6.1-3-g466799d4f5 allows a local attacker to execute arbitrary code via the av_malloc function in libavutil/mem.c:105:9 component.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-50008.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-50008 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-50008",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-50009": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.n6.1-3-g466799d4f5 allows a local attacker to execute arbitrary code via the ff_gaussian_blur_8 function in libavfilter/edge_template.c:116:5 component.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-50009.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-50009 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-50009",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-50010": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.n6.1-3-g466799d4f5 allows a local attacker to execute arbitrary code via the set_encoder_id function in /fftools/ffmpeg_enc.c component.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-50010.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-50010 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-50010",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-51792": {
+        "description": "Buffer Overflow vulnerability in libde265 v1.0.12 allows a local attacker to cause a denial of service via the allocation size exceeding the maximum supported size of 0x10000000000.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-51792.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-51792 - libde265-0",
+        "vulnerability_id": "CVE-2023-51792",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 0,
+                "name": "libde265-0",
+                "packageManager": "OS",
+                "release": "1ubuntu0.3",
+                "version": "1.0.8"
+            }
+        ]
+    },
+    "CVE-2023-51793": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.N113007-g8d24a28d06 allows a local attacker to execute arbitrary code via the libavutil/imgutils.c:353:9 in image_copy_plane.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-51793.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-51793 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-51793",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-51794": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.N113007-g8d24a28d06 allows a local attacker to execute arbitrary code via the libavfilter/af_stereowiden.c:120:69.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-51794.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-51794 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-51794",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-51795": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.N113007-g8d24a28d06 allows a local attacker to execute arbitrary code via the libavfilter/avf_showspectrum.c:1789:52 component in showspectrumpic_request_frame",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-51795.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-51795 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-51795",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-51796": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.N113007-g8d24a28d06 allows a local attacker to execute arbitrary code via the libavfilter/f_reverse.c:269:26 in areverse_request_frame.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-51796.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-51796 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-51796",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2023-51798": {
+        "description": "Buffer Overflow vulnerability in Ffmpeg v.N113007-g8d24a28d06 allows a local attacker to execute arbitrary code via a floating point exception (FPE) error at libavfilter/vf_minterpolate.c:1078:60 in interpolate.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2023/CVE-2023-51798.html",
+        "status": "ACTIVE",
+        "title": "CVE-2023-51798 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2023-51798",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2024-31578": {
+        "description": "FFmpeg version n6.1.1 was discovered to contain a heap use-after-free via the av_hwframe_ctx_init function.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-31578.html",
+        "status": "ACTIVE",
+        "title": "CVE-2024-31578 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2024-31578",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2024-31582": {
+        "description": "FFmpeg version n6.1 was discovered to contain a heap buffer overflow vulnerability in the draw_block_rectangle function of libavfilter/vf_codecview.c. This vulnerability allows attackers to cause undefined behavior or a Denial of Service (DoS) via crafted input.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-31582.html",
+        "status": "ACTIVE",
+        "title": "CVE-2024-31582 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2024-31582",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2024-31585": {
+        "description": "FFmpeg version n5.1 to n6.1 was discovered to contain an Off-by-one Error vulnerability in libavfilter/avf_showspectrum.c. This vulnerability allows attackers to cause a Denial of Service (DoS) via a crafted input.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-31585.html",
+        "status": "ACTIVE",
+        "title": "CVE-2024-31585 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2024-31585",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "CVE-2024-32230": {
+        "description": "FFmpeg 7.0 is vulnerable to Buffer Overflow. There is a negative-size-param bug at libavcodec/mpegvideo_enc.c:1216:21 in load_input_picture in FFmpeg7.0",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 7.8,
+        "score_details": {
+            "cvss": {
+                "adjustments": [],
+                "score": 7.8,
+                "scoreSource": "UBUNTU_CVE",
+                "scoringVector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+                "version": "3.1"
+            }
+        },
+        "severity": "HIGH",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-32230.html",
+        "status": "ACTIVE",
+        "title": "CVE-2024-32230 - libavformat58, libavcodec58 and 5 more",
+        "vulnerability_id": "CVE-2024-32230",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec-dev",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
     "CVE-2024-35195": {
         "description": "Requests is a HTTP library. Prior to 2.32.0, when making requests through a Requests `Session`, if the first request is made with `verify=False` to disable cert verification, all subsequent requests to the same host will continue to ignore cert verification regardless of changes to the value of `verify`. This behavior will continue for the lifecycle of the connection in the connection pool. This vulnerability is fixed in 2.32.0.",
         "remediation": {
@@ -21,6 +2671,138 @@
                 "name": "requests",
                 "packageManager": "PYTHONPKG",
                 "version": "2.31.0"
+            }
+        ]
+    },
+    "CVE-2024-36617": {
+        "description": "FFmpeg n6.1.1 has an integer overflow vulnerability in the FFmpeg CAF decoder.",
+        "remediation": {
+            "recommendation": {
+                "text": "None Provided"
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "MEDIUM",
+        "source": "UBUNTU_CVE",
+        "source_url": "https://people.canonical.com/~ubuntu-security/cve/2024/CVE-2024-36617.html",
+        "status": "ACTIVE",
+        "title": "CVE-2024-36617 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "CVE-2024-36617",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            }
+        ]
+    },
+    "USN-6449-2": {
+        "description": "USN-6449-1 fixed vulnerabilities in FFmpeg. Unfortunately that update could introduce a regression in tools using an FFmpeg library, like VLC. \n\nThis updated fixes the problem. We apologize for the inconvenience.\n\nOriginal advisory details: \n\nIt was discovered that FFmpeg incorrectly managed memory resulting in a memory leak. An attacker could possibly use this issue to cause a denial of service via application crash. This issue only affected Ubuntu 18.04 LTS and Ubuntu 20.04 LTS. (CVE-2020-22038)\n\nIt was discovered that FFmpeg incorrectly handled certain input files, leading to an integer overflow. An attacker could possibly use this issue to cause a denial of service via application crash. This issue only affected Ubuntu 20.04 LTS. (CVE-2020-20898, CVE-2021-38090, CVE-2021-38091, CVE-2021-38092, CVE-2021-38093, CVE-2021-38094)\n\nIt was discovered that FFmpeg incorrectly managed memory, resulting in a memory leak. If a user or automated system were tricked into processing a specially crafted input file, a rem",
+        "remediation": {
+            "recommendation": {
+                "text": "In general, a standard system update will make all the necessary changes."
+            }
+        },
+        "score": 0.0,
+        "score_details": {},
+        "severity": "UNTRIAGED",
+        "source": "USN",
+        "source_url": "https://usn.ubuntu.com/6449-2",
+        "status": "ACTIVE",
+        "title": "USN-6449-2 - libavformat58, libavcodec58 and 4 more",
+        "vulnerability_id": "USN-6449-2",
+        "vulnerable_packages": [
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavformat58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavcodec58",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswscale5",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libavutil56",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "ffmpeg",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
+            },
+            {
+                "arch": "AMD64",
+                "epoch": 7,
+                "name": "libswresample3",
+                "packageManager": "OS",
+                "release": "0ubuntu0.22.04.1",
+                "version": "4.4.2"
             }
         ]
     }
