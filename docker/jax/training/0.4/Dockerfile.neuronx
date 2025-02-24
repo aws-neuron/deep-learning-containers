@@ -1,22 +1,16 @@
-FROM public.ecr.aws/docker/library/ubuntu:22.04
+ARG BUILD_STAGE=prod
+
+FROM public.ecr.aws/docker/library/ubuntu:22.04 AS base
 
 LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
 
-# Neuron SDK components version numbers
-ARG NEURONX_RUNTIME_LIB_VERSION=2.23.112.0-9b5179492
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.23.135.0-3e70920f2
-ARG NEURONX_TOOLS_VERSION=2.20.204.0
-ARG NEURONX_CC_VERSION=2.16.372.0
-ARG NEURONX_JAX_TRAINING_VERSION=0.1.2
-
+# This arg required to stop docker build waiting for region configuration while installing tz data from ubuntu 22
+ARG DEBIAN_FRONTEND=noninteractive
 ARG PYTHON=python3.10
 ARG PYTHON_VERSION=3.10.12
 ARG PIP=pip3
 ARG OMPI_VERSION=4.1.5
-
-# This arg required to stop docker build waiting for region configuration while installing tz data from ubuntu 22
-ARG DEBIAN_FRONTEND=noninteractive
 
 # Python won’t try to write .pyc or .pyo files on the import of source modules
 # Force stdin, stdout and stderr to be totally unbuffered. Good for logging
@@ -30,6 +24,7 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib64"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/openmpi/lib64"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
+ENV PATH="/opt/aws/neuron/bin:${PATH}"
 
 RUN apt-get update \
  && apt-get upgrade -y \
@@ -86,15 +81,17 @@ RUN mkdir -p /tmp/openmpi \
  && rm -rf /tmp/openmpi
 
 # Install packages and configure SSH for MPI operator in k8s
-RUN apt-get update && apt-get install -y openmpi-bin openssh-server \
+RUN apt-get update \
+ && apt-get install -y openmpi-bin openssh-server \
  && mkdir -p /var/run/sshd \
  && echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config \
  && echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config \
  && sed -i 's/#\(StrictModes \).*/\1no/g' /etc/ssh/sshd_config \
  && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
  && apt-get clean
 
-# install Python
+# Install Python
 RUN wget -q https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz \
  && tar -xzf Python-$PYTHON_VERSION.tgz \
  && cd Python-$PYTHON_VERSION \
@@ -104,8 +101,26 @@ RUN wget -q https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VER
  && ln -s /usr/local/bin/pip3 /usr/bin/pip \
  && ln -s /usr/local/bin/$PYTHON /usr/local/bin/python \
  && ${PIP} --no-cache-dir install --upgrade \
+    "awscli<2" \
     pip \
-    setuptools
+    requests \
+    setuptools \
+ && rm -rf ~/.cache/pip/*
+
+# Install EFA
+RUN apt-get update \
+ && cd $HOME \
+ && curl -O https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz \
+ && wget https://efa-installer.amazonaws.com/aws-efa-installer.key && gpg --import aws-efa-installer.key \
+ && cat aws-efa-installer.key | gpg --fingerprint \
+ && wget https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz.sig && gpg --verify ./aws-efa-installer-latest.tar.gz.sig \
+ && tar -xf aws-efa-installer-latest.tar.gz \
+ && cd aws-efa-installer \
+ && ./efa_installer.sh -y -g -d --skip-kmod --skip-limit-conf --no-verify \
+ && cd $HOME \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
 
 WORKDIR /
 
@@ -118,54 +133,9 @@ RUN ompi_info --parsable --all | grep mpi_built_with_cuda_support:value
 
 RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
 
-# Install Neuron Driver, Runtime and Tools 
-RUN echo "deb https://apt.repos.neuron.amazonaws.com focal main" > /etc/apt/sources.list.d/neuron.list
-RUN wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
-
-RUN apt-get update \
- && apt-get install -y \
-    aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
-    aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
-    aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
-
-# Add Neuron PATH
-ENV PATH="/opt/aws/neuron/bin:${PATH}"
-
-# Install AWS CLI
-RUN ${PIP} install --no-cache-dir -U "awscli<2"
-
-# Install JAX & Neuron CC
-RUN ${PIP} config set global.extra-index-url https://pip.repos.neuron.amazonaws.com \
- && ${PIP} install --force-reinstall neuronx-cc==$NEURONX_CC_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
- && ${PIP} install --force-reinstall jax-neuronx==$NEURONX_JAX_TRAINING_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com
-
-# EFA Installer does apt get. Make sure to run apt update before that
-RUN apt-get update
-RUN cd $HOME \
- && curl -O https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz \
- && wget https://efa-installer.amazonaws.com/aws-efa-installer.key && gpg --import aws-efa-installer.key \
- && cat aws-efa-installer.key | gpg --fingerprint \
- && wget https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz.sig && gpg --verify ./aws-efa-installer-latest.tar.gz.sig \
- && tar -xf aws-efa-installer-latest.tar.gz \
- && cd aws-efa-installer \
- && ./efa_installer.sh -y -g -d --skip-kmod --skip-limit-conf --no-verify \
- && cd $HOME
-
-# Clean up after apt update
-RUN rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
-
 # Copy workaround script for incorrect hostname
 COPY changehostname.c /
-COPY start_with_right_hostname.sh /usr/local/bin/start_with_right_hostname.sh
-COPY deep_learning_container.py /usr/local/bin/deep_learning_container.py
-
-RUN chmod +x /usr/local/bin/start_with_right_hostname.sh \
- && chmod +x /usr/local/bin/deep_learning_container.py
+COPY --chmod=755 start_with_right_hostname.sh deep_learning_container.py /usr/local/bin/
 
 RUN HOME_DIR=/root \
  && curl -o ${HOME_DIR}/oss_compliance.zip https://aws-dlinfra-utilities.s3.amazonaws.com/oss_compliance.zip \
@@ -176,6 +146,97 @@ RUN HOME_DIR=/root \
  && ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh ${HOME_DIR} ${PYTHON} \
  && rm -rf ${HOME_DIR}/oss_compliance* \
  && rm -rf /tmp/tmp*
+
+RUN echo "deb https://apt.repos.neuron.amazonaws.com focal main" > /etc/apt/sources.list.d/neuron.list \
+ && wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
+
+# Neuron SDK components version numbers
+ARG NEURON_ARTIFACT_PATH=/root/neuron_artifacts
+ARG IGNORE_MISSING_NEURON_COMPONENTS=false
+RUN IGNORE_MISSING_NEURON_COMPONENTS=$(echo ${IGNORE_MISSING_NEURON_COMPONENTS} | tr '[:upper:]' '[:lower:]')
+
+ARG NEURONX_RUNTIME_LIB_VERSION=2.23.112.0-9b5179492
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.23.135.0-3e70920f2
+ARG NEURONX_TOOLS_VERSION=2.20.204.0
+
+ARG NEURONX_CC_VERSION=2.16.372.0
+ARG NEURONX_JAX_TRAINING_VERSION=0.1.2
+
+FROM base AS dev
+
+RUN --mount=type=bind,source=apt,target=${NEURON_ARTIFACT_PATH}/apt \
+    install_apt_package() { \
+        pkg_name=$1; \
+        version_arg=$2; \
+        if [ -f "${NEURON_ARTIFACT_PATH}/apt/${version_arg}" ]; then \
+            apt-get install -y ${NEURON_ARTIFACT_PATH}/apt/${version_arg}; \
+        elif [ "${IGNORE_MISSING_NEURON_COMPONENTS}" = "false" ]; then \
+            apt-get install -y ${pkg_name}=${version_arg}; \
+        else \
+            echo "Ignoring package ${pkg_name}"; \
+        fi; \
+    } \
+ && apt-get update \
+ && install_apt_package "aws-neuronx-collectives" "${NEURONX_COLLECTIVES_LIB_VERSION}" \
+ && install_apt_package "aws-neuronx-runtime-lib" "${NEURONX_RUNTIME_LIB_VERSION}" \
+ && install_apt_package "aws-neuronx-tools" "${NEURONX_TOOLS_VERSION}" \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+RUN --mount=type=bind,source=pip,target=${NEURON_ARTIFACT_PATH}/pip \
+    install_pip_package() { \
+        packages=""; \
+        flags=""; \
+        while [ "$#" -gt 0 ]; do \
+            pkg_name=$(echo $1 | cut -d: -f1); \
+            version_arg=$(echo $1 | cut -d: -f2); \
+            extra_flags=$(echo $1 | cut -d: -f3); \
+            if [ -f "${NEURON_ARTIFACT_PATH}/pip/${version_arg}" ]; then \
+                packages="${packages} ${NEURON_ARTIFACT_PATH}/pip/${version_arg}"; \
+                # Store unique flags
+                if [ ! -z "${extra_flags}" ]; then \
+                    for flag in $(echo "${extra_flags}" | tr ' ' '\n'); do \
+                        if [[ "${flags}" != *"${flag}"* ]]; then \
+                            flags="${flags} ${flag}"; \
+                        fi \
+                    done; \
+                fi \
+            elif [ "${IGNORE_MISSING_NEURON_COMPONENTS}" = "false" ]; then \
+                ${PIP} install --no-cache-dir --force-reinstall --extra-index-url https://pip.repos.neuron.amazonaws.com ${pkg_name}==${version_arg} ${extra_flags}; \
+            else \
+                echo "Ignoring package ${pkg_name}"; \
+            fi; \
+            shift; \
+        done; \
+        if [ ! -z "${packages}" ]; then \
+            echo "Running pip install of ${packages} with flags ${flags}"; \
+            ${PIP} install --no-cache-dir --force-reinstall --find-links ${NEURON_ARTIFACT_PATH}/pip ${packages} ${flags}; \
+        fi; \
+    } \
+ && install_pip_package "neuronx-cc:${NEURONX_CC_VERSION}:" "jax-neuronx:${NEURONX_JAX_TRAINING_VERSION}:" \
+ && rm -rf ~/.cache/pip/*
+
+FROM base AS prod
+
+# Install Neuron components
+# Install Neuron Driver, Runtime and Tools
+RUN apt-get update \
+ && apt-get install -y \
+    aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
+    aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
+    aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+# Install JAX & Neuron CC
+RUN ${PIP} config set global.extra-index-url https://pip.repos.neuron.amazonaws.com \
+ && ${PIP} install --no-cache-dir --force-reinstall neuronx-cc==$NEURONX_CC_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
+ && ${PIP} install --no-cache-dir --force-reinstall jax-neuronx==$NEURONX_JAX_TRAINING_VERSION --extra-index-url https://pip.repos.neuron.amazonaws.com \
+ && rm -rf ~/.cache/pip/*
+
+FROM ${BUILD_STAGE} AS final
 
 # Starts framework
 ENTRYPOINT ["bash", "-m", "start_with_right_hostname.sh"]
