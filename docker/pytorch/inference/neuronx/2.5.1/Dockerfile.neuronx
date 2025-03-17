@@ -1,0 +1,170 @@
+FROM public.ecr.aws/docker/library/ubuntu:22.04
+
+LABEL dlc_major_version="1"
+LABEL maintainer="Amazon AI"
+LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
+
+# Neuron SDK pre-release packages
+ARG NEURON_ARTIFACT_PATH=/root/neuron_artifacts
+ARG NEURONX_RUNTIME_LIB_VERSION
+ARG NEURONX_COLLECTIVES_LIB_VERSION
+ARG NEURONX_TOOLS_VERSION
+ARG NEURONX_FRAMEWORK_VERSION
+ARG NEURONX_TRANSFORMERS_VERSION
+ARG NEURONX_CC_VERSION
+ARG NEURONX_DISTRIBUTED_VERSION
+ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION
+
+ARG PIP=pip3
+ARG PYTHON=python3.10
+ARG PYTHON_VERSION=3.10.12
+ARG TORCHSERVE_VERSION=0.11.0
+ARG SM_TOOLKIT_VERSION=2.0.21
+ARG MAMBA_VERSION=23.1.0-4
+
+# See http://bugs.python.org/issue19846
+ENV LANG=C.UTF-8
+ENV LD_LIBRARY_PATH=/opt/aws/neuron/lib:/lib/x86_64-linux-gnu:/opt/conda/lib/:$LD_LIBRARY_PATH
+ENV PATH=/opt/conda/bin:/opt/aws/neuron/bin:$PATH
+ENV SAGEMAKER_SERVING_MODULE=sagemaker_pytorch_serving_container.serving:main
+ENV TEMP=/home/model-server/tmp
+
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y --no-install-recommends \
+    apt-transport-https \
+    build-essential \
+    ca-certificates \
+    cmake \
+    curl \
+    emacs \
+    git \
+    gpg-agent \
+    jq \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libcap-dev \
+    libhwloc-dev \
+    openjdk-11-jdk \
+    unzip \
+    vim \
+    wget \
+    zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+# Copy Neuron artifacts into container for local installation
+COPY pip ${NEURON_ARTIFACT_PATH}/pip/
+COPY apt ${NEURON_ARTIFACT_PATH}/apt/
+
+RUN apt-get install -y \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_TOOLS_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_COLLECTIVES_LIB_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_RUNTIME_LIB_VERSION}
+
+# https://github.com/docker-library/openjdk/issues/261 https://github.com/docker-library/openjdk/pull/263/files
+RUN keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt; \
+    mv /etc/ssl/certs/java/cacerts.jks /etc/ssl/certs/java/cacerts; \
+    /var/lib/dpkg/info/ca-certificates-java.postinst configure;
+
+RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/download/${MAMBA_VERSION}/Mambaforge-${MAMBA_VERSION}-Linux-x86_64.sh \
+ && chmod +x ~/mambaforge.sh \
+ && ~/mambaforge.sh -b -p /opt/conda \
+ && rm ~/mambaforge.sh \
+ && /opt/conda/bin/conda update -y conda \
+ && /opt/conda/bin/conda install -c conda-forge -y \
+    python=$PYTHON_VERSION \
+    pyopenssl \
+    cython \
+    mkl-include \
+    mkl \
+    parso \
+    typing \
+    # Below 2 are included in miniconda base, but not mamba so need to install
+    conda-content-trust \
+    charset-normalizer \
+ && /opt/conda/bin/conda clean -ya
+
+RUN conda install -c conda-forge \
+    scikit-learn \
+    h5py \
+    requests \
+ && conda clean -ya \
+ && pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+ && ln -s /opt/conda/bin/pip /usr/local/bin/pip3 \
+ && pip install packaging \
+    enum-compat \
+    ipython
+
+RUN ${PIP} install --no-cache-dir -U \
+    opencv-python>=4.8.1.78 \
+    "numpy<1.24,>1.21" \
+    "scipy>=1.8.0" \
+    six \
+    "pillow>=10.0.1" \
+    "awscli<2" \
+    pandas==1.* \
+    boto3 \
+    cryptography
+
+RUN ${PIP} install --no-cache-dir --find-links ${NEURON_ARTIFACT_PATH}/pip \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_CC_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_FRAMEWORK_VERSION} \
+    ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_TRANSFORMERS_VERSION} \
+ && ${PIP} install -U "protobuf>=3.18.3,<4" \
+    "transformers==4.45.*" \
+    torchserve==${TORCHSERVE_VERSION} \
+    torch-model-archiver==${TORCHSERVE_VERSION} \
+ && ${PIP} install --no-deps --no-cache-dir -U torchvision==0.20.* \
+ && ${PIP} install --no-deps --find-links -U ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_DISTRIBUTED_VERSION} \
+ && ${PIP} install --no-deps --find-links -U ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_DISTRIBUTED_INFERENCE_VERSION}
+
+RUN rm -rf ${NEURON_ARTIFACT_PATH}
+
+RUN useradd -m model-server \
+ && mkdir -p /home/model-server/tmp /opt/ml/model \
+ && chown -R model-server /home/model-server /opt/ml/model
+
+COPY neuron-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+COPY neuron-monitor.sh /usr/local/bin/neuron-monitor.sh
+COPY torchserve-neuron.sh /usr/local/bin/entrypoint.sh
+COPY config.properties /home/model-server
+
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.py \
+ && chmod +x /usr/local/bin/neuron-monitor.sh \
+ && chmod +x /usr/local/bin/entrypoint.sh
+
+ADD https://raw.githubusercontent.com/aws-neuron/deep-learning-containers/main/docker/common/deep_learning_container.py /usr/local/bin/deep_learning_container.py
+
+RUN chmod +x /usr/local/bin/deep_learning_container.py
+
+RUN ${PIP} install --no-cache-dir "sagemaker-pytorch-inference==${SM_TOOLKIT_VERSION}"
+
+# patch default_pytorch_inference_handler.py to import torch_neuronx
+RUN DEST_DIR=$(python -c "import os.path, sagemaker_pytorch_serving_container; print(os.path.dirname(sagemaker_pytorch_serving_container.__file__))") \
+ && DEST_FILE=${DEST_DIR}/default_pytorch_inference_handler.py \
+ && sed -i "s/import torch/import torch, torch_neuronx/" ${DEST_FILE}
+
+RUN HOME_DIR=/root \
+ && curl -o ${HOME_DIR}/oss_compliance.zip https://aws-dlinfra-utilities.s3.amazonaws.com/oss_compliance.zip \
+ && unzip ${HOME_DIR}/oss_compliance.zip -d ${HOME_DIR}/ \
+ && cp ${HOME_DIR}/oss_compliance/test/testOSSCompliance /usr/local/bin/testOSSCompliance \
+ && chmod +x /usr/local/bin/testOSSCompliance \
+ && chmod +x ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh \
+ && ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh ${HOME_DIR} ${PYTHON} \
+ && rm -rf ${HOME_DIR}/oss_compliance* \
+ # conda leaves an empty /root/.cache/conda/notices.cache file which is not removed by conda clean -ya
+ && rm -rf ${HOME_DIR}/.cache/conda
+
+RUN curl -o /license.txt  https://aws-dlc-licenses.s3.amazonaws.com/pytorch-2.5/license.txt
+
+EXPOSE 8080 8081
+
+ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
+CMD ["/usr/local/bin/entrypoint.sh"]
+
+HEALTHCHECK CMD curl --fail http://localhost:8080/ping || exit 1
