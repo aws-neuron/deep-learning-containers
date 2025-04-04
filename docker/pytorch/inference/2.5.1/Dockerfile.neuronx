@@ -4,20 +4,11 @@ LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
-# Neuron SDK components version numbers
-ARG NEURONX_CC_VERSION=2.16.372.0
-ARG NEURONX_FRAMEWORK_VERSION=2.5.1.2.4.0
-ARG NEURONX_TRANSFORMERS_VERSION=0.13.380
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.23.135.0-3e70920f2
-ARG NEURONX_RUNTIME_LIB_VERSION=2.23.112.0-9b5179492
-ARG NEURONX_TOOLS_VERSION=2.20.204.0
-ARG NEURONX_DISTRIBUTED_VERSION=0.10.1
-ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.1.1
-
+ARG PIP=pip3
 ARG PYTHON=python3.10
 ARG PYTHON_VERSION=3.10.12
 ARG TORCHSERVE_VERSION=0.11.0
-ARG SM_TOOLKIT_VERSION=2.0.21
+ARG SM_TOOLKIT_VERSION=2.0.25
 ARG MAMBA_VERSION=23.1.0-4
 
 # See http://bugs.python.org/issue19846
@@ -37,7 +28,6 @@ RUN apt-get update \
     curl \
     emacs \
     git \
-    gnupg2 \
     gpg-agent \
     jq \
     libgl1-mesa-glx \
@@ -52,18 +42,6 @@ RUN apt-get update \
     vim \
     wget \
     zlib1g-dev \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
-
-RUN echo "deb https://apt.repos.neuron.amazonaws.com focal main" > /etc/apt/sources.list.d/neuron.list
-RUN wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | apt-key add -
-
-RUN apt-get update \
- && apt-get install -y \
-    aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
-    aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
-    aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
  && apt-get clean
@@ -100,9 +78,10 @@ RUN conda install -c conda-forge \
  && ln -s /opt/conda/bin/pip /usr/local/bin/pip3 \
  && pip install packaging \
     enum-compat \
-    ipython
+    ipython \
+ && rm -rf ~/.cache/pip/*
 
-RUN pip install --no-cache-dir -U \
+RUN ${PIP} install --no-cache-dir -U \
     opencv-python>=4.8.1.78 \
     "numpy<1.24,>1.21" \
     "scipy>=1.8.0" \
@@ -111,43 +90,30 @@ RUN pip install --no-cache-dir -U \
     "awscli<2" \
     pandas==1.* \
     boto3 \
-    cryptography
-
-RUN pip install -U --extra-index-url https://pip.repos.neuron.amazonaws.com \
-    neuronx-cc==$NEURONX_CC_VERSION \
-    torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
-    transformers-neuronx==$NEURONX_TRANSFORMERS_VERSION \
- && pip install -U "protobuf>=3.18.3,<4" \
+    cryptography \
+    "protobuf>=3.18.3,<4" \
     "transformers==4.45.*" \
     torchserve==${TORCHSERVE_VERSION} \
     torch-model-archiver==${TORCHSERVE_VERSION} \
- && pip install --no-deps --no-cache-dir -U torchvision==0.20.* \
- && pip install --no-deps -U --extra-index-url https://pip.repos.neuron.amazonaws.com neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
- && pip install -U --extra-index-url https://pip.repos.neuron.amazonaws.com neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION
+ && ${PIP} install --no-deps --no-cache-dir -U torchvision==0.20.* \
+ && rm -rf ~/.cache/pip/*
 
 RUN useradd -m model-server \
  && mkdir -p /home/model-server/tmp /opt/ml/model \
  && chown -R model-server /home/model-server /opt/ml/model
 
-COPY neuron-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
-COPY neuron-monitor.sh /usr/local/bin/neuron-monitor.sh
-COPY torchserve-neuron.sh /usr/local/bin/entrypoint.sh
+COPY --chmod=755 neuron-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+COPY --chmod=755 neuron-monitor.sh deep_learning_container.py /usr/local/bin/
+COPY --chmod=755 torchserve-neuron.sh /usr/local/bin/entrypoint.sh
 COPY config.properties /home/model-server
 
-RUN chmod +x /usr/local/bin/dockerd-entrypoint.py \
- && chmod +x /usr/local/bin/neuron-monitor.sh \
- && chmod +x /usr/local/bin/entrypoint.sh
 
-ADD https://raw.githubusercontent.com/aws/deep-learning-containers/master/src/deep_learning_container.py /usr/local/bin/deep_learning_container.py
-
-RUN chmod +x /usr/local/bin/deep_learning_container.py
-
-RUN pip install --no-cache-dir "sagemaker-pytorch-inference==${SM_TOOLKIT_VERSION}"
-
-# patch default_pytorch_inference_handler.py to import torch_neuronx
-RUN DEST_DIR=$(python -c "import os.path, sagemaker_pytorch_serving_container; print(os.path.dirname(sagemaker_pytorch_serving_container.__file__))") \
+RUN ${PIP} install --no-cache-dir "sagemaker-pytorch-inference==${SM_TOOLKIT_VERSION}" \
+ # patch default_pytorch_inference_handler.py to import torch_neuronx
+ && DEST_DIR=$(python -c "import os.path, sagemaker_pytorch_serving_container; print(os.path.dirname(sagemaker_pytorch_serving_container.__file__))") \
  && DEST_FILE=${DEST_DIR}/default_pytorch_inference_handler.py \
- && sed -i "s/import torch/import torch, torch_neuronx/" ${DEST_FILE}
+ && sed -i "s/import torch/import torch, torch_neuronx/" ${DEST_FILE} \
+ && rm -rf ~/.cache/pip/*
 
 RUN HOME_DIR=/root \
  && curl -o ${HOME_DIR}/oss_compliance.zip https://aws-dlinfra-utilities.s3.amazonaws.com/oss_compliance.zip \
@@ -161,6 +127,36 @@ RUN HOME_DIR=/root \
  && rm -rf ${HOME_DIR}/.cache/conda
 
 RUN curl -o /license.txt  https://aws-dlc-licenses.s3.amazonaws.com/pytorch-2.5/license.txt
+
+# Neuron SDK pre-release packages
+ARG NEURON_ARTIFACT_PATH=/root/neuron_artifacts
+ARG NEURONX_RUNTIME_LIB_VERSION=2.24.53.0-f239092cc
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.24.59.0-838c7fc8b
+ARG NEURONX_TOOLS_VERSION=2.22.61.0
+
+RUN --mount=type=bind,source=apt,target=${NEURON_ARTIFACT_PATH}/apt \
+    apt-get install -y \
+        ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_TOOLS_VERSION} \
+        ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_COLLECTIVES_LIB_VERSION} \
+        ${NEURON_ARTIFACT_PATH}/apt/${NEURONX_RUNTIME_LIB_VERSION} \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+ARG NEURONX_FRAMEWORK_VERSION=2.5.1.2.6.0
+ARG NEURONX_TRANSFORMERS_VERSION=0.13.470
+ARG NEURONX_CC_VERSION=2.17.194.0
+ARG NEURONX_DISTRIBUTED_VERSION=0.11.0
+ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.2.0
+
+RUN --mount=type=bind,source=pip,target=${NEURON_ARTIFACT_PATH}/pip \
+    ${PIP} install --no-cache-dir --find-links ${NEURON_ARTIFACT_PATH}/pip \
+        ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_CC_VERSION} \
+        ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_FRAMEWORK_VERSION} \
+        ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_TRANSFORMERS_VERSION} \
+ && ${PIP} install --no-deps --find-links -U ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_DISTRIBUTED_VERSION} \
+ && ${PIP} install --no-deps --find-links -U ${NEURON_ARTIFACT_PATH}/pip/${NEURONX_DISTRIBUTED_INFERENCE_VERSION} \
+ && rm -rf ~/.cache/pip/*
 
 EXPOSE 8080 8081
 
