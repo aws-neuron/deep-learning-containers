@@ -4,31 +4,26 @@ FROM public.ecr.aws/docker/library/ubuntu:22.04 AS base
 
 LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
+LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
-# This arg required to stop docker build waiting for region configuration while installing tz data from ubuntu 22
-ARG DEBIAN_FRONTEND=noninteractive
+ARG PIP=pip3
 ARG PYTHON=python3.10
 ARG PYTHON_VERSION=3.10.12
-ARG PIP=pip3
-ARG OMPI_VERSION=4.1.5
+ARG TORCHSERVE_VERSION=0.11.0
+ARG SM_TOOLKIT_VERSION=2.0.25
+ARG MAMBA_VERSION=23.1.0-4
 
-# Python won’t try to write .pyc or .pyo files on the import of source modules
-# Force stdin, stdout and stderr to be totally unbuffered. Good for logging
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONIOENCODING=UTF-8
+# See http://bugs.python.org/issue19846
 ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/aws/neuron/lib"
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib"
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib64"
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/openmpi/lib64"
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
-ENV PATH="/opt/aws/neuron/bin:${PATH}"
+ENV LD_LIBRARY_PATH=/opt/aws/neuron/lib:/lib/x86_64-linux-gnu:/opt/conda/lib/:$LD_LIBRARY_PATH
+ENV PATH=/opt/conda/bin:/opt/aws/neuron/bin:$PATH
+ENV SAGEMAKER_SERVING_MODULE=sagemaker_pytorch_serving_container.serving:main
+ENV TEMP=/home/model-server/tmp
 
 RUN apt-get update \
  && apt-get upgrade -y \
  && apt-get install -y --no-install-recommends \
+    apt-transport-https \
     build-essential \
     ca-certificates \
     cmake \
@@ -38,104 +33,91 @@ RUN apt-get update \
     gnupg2 \
     gpg-agent \
     jq \
-    libopencv-dev \
-    libglib2.0-0 \
     libgl1-mesa-glx \
+    libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    libssl-dev \
-    libsqlite3-dev \
-    libgdbm-dev \
-    libc6-dev \
-    libbz2-dev \
-    libncurses-dev \
-    libffi-dev \
     libcap-dev \
     libhwloc-dev \
-    openjdk-8-jdk-headless \
-    openjdk-8-jdk \
-    openjdk-8-jre \
     openjdk-11-jdk \
-    openssl \
-    software-properties-common \
-    tk-dev \
     unzip \
-    wget \
     vim \
+    wget \
     zlib1g-dev \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-# Install Open MPI
-RUN mkdir -p /tmp/openmpi \
- && cd /tmp/openmpi \
- && wget --quiet https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-${OMPI_VERSION}.tar.gz \
- && tar zxf openmpi-${OMPI_VERSION}.tar.gz \
- && cd openmpi-${OMPI_VERSION} \
- && ./configure --enable-orterun-prefix-by-default \
- && make -j $(nproc) all \
- && make install \
- && ldconfig \
- && rm -rf /tmp/openmpi
+# https://github.com/docker-library/openjdk/issues/261 https://github.com/docker-library/openjdk/pull/263/files
+RUN keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt; \
+    mv /etc/ssl/certs/java/cacerts.jks /etc/ssl/certs/java/cacerts; \
+    /var/lib/dpkg/info/ca-certificates-java.postinst configure;
 
-# Install packages and configure SSH for MPI operator in k8s
-RUN apt-get update \
- && apt-get install -y openmpi-bin openssh-server \
- && mkdir -p /var/run/sshd \
- && echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config \
- && echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config \
- && sed -i 's/#\(StrictModes \).*/\1no/g' /etc/ssh/sshd_config \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
+RUN curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/download/${MAMBA_VERSION}/Mambaforge-${MAMBA_VERSION}-Linux-x86_64.sh \
+ && chmod +x ~/mambaforge.sh \
+ && ~/mambaforge.sh -b -p /opt/conda \
+ && rm ~/mambaforge.sh \
+ && /opt/conda/bin/conda update -y conda \
+ && /opt/conda/bin/mamba install -c conda-forge -y \
+    python=$PYTHON_VERSION \
+    pyopenssl \
+    cython \
+    mkl-include \
+    mkl \
+    parso \
+    typing \
+    # Below 2 are included in miniconda base, but not mamba so need to install
+    conda-content-trust \
+    charset-normalizer \
+ && /opt/conda/bin/conda clean -ya
 
-# Install Python
-RUN wget -q https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz \
- && tar -xzf Python-$PYTHON_VERSION.tgz \
- && cd Python-$PYTHON_VERSION \
- && ./configure --enable-shared --prefix=/usr/local \
- && make -j $(nproc) && make install \
- && cd .. && rm -rf ../Python-$PYTHON_VERSION* \
- && ln -s /usr/local/bin/pip3 /usr/bin/pip \
- && ln -s /usr/local/bin/$PYTHON /usr/local/bin/python \
- && ${PIP} --no-cache-dir install --upgrade \
-    "awscli<2" \
-    pip \
+RUN /opt/conda/bin/mamba install -c conda-forge \
+    scikit-learn \
+    h5py \
     requests \
-    setuptools \
+ && conda clean -ya \
+ && pip install --upgrade pip \
+    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+ && ln -s /opt/conda/bin/pip /usr/local/bin/pip3 \
+ && pip install \
+    packaging \
+    enum-compat \
+    ipython \
  && rm -rf ~/.cache/pip/*
 
-# Install EFA
-RUN apt-get update \
- && cd $HOME \
- && curl -O https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz \
- && wget https://efa-installer.amazonaws.com/aws-efa-installer.key && gpg --import aws-efa-installer.key \
- && cat aws-efa-installer.key | gpg --fingerprint \
- && wget https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz.sig && gpg --verify ./aws-efa-installer-latest.tar.gz.sig \
- && tar -xf aws-efa-installer-latest.tar.gz \
- && cd aws-efa-installer \
- && ./efa_installer.sh -y -g -d --skip-kmod --skip-limit-conf --no-verify \
- && cd $HOME \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
+RUN ${PIP} install --no-cache-dir -U \
+    opencv-python>=4.8.1.78 \
+    "numpy<1.24,>1.21" \
+    "scipy>=1.8.0" \
+    six \
+    "pillow>=10.0.1" \
+    "awscli<2" \
+    pandas==1.* \
+    boto3 \
+    cryptography \
+    "protobuf>=3.18.3,<4" \
+    "transformers==4.45.*" \
+    torchserve==${TORCHSERVE_VERSION} \
+    torch-model-archiver==${TORCHSERVE_VERSION} \
+ && ${PIP} install --no-deps --no-cache-dir -U torchvision==0.21.* \
+ && rm -rf ~/.cache/pip/*
 
-WORKDIR /
+RUN useradd -m model-server \
+ && mkdir -p /home/model-server/tmp /opt/ml/model \
+ && chown -R model-server /home/model-server /opt/ml/model
 
-# The ENV variables declared below are changed in the previous section
-# Grouping these ENV variables in the first section causes
-# ompi_info to fail. This is only observed in CPU containers
-ENV PATH="$PATH:/home/.openmpi/bin"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/.openmpi/lib/"
-RUN ompi_info --parsable --all | grep mpi_built_with_cuda_support:value
+COPY --chmod=755 neuron-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+COPY --chmod=755 neuron-monitor.sh deep_learning_container.py /usr/local/bin/
+COPY --chmod=755 torchserve-neuron.sh /usr/local/bin/entrypoint.sh
+COPY config.properties /home/model-server
 
-RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
-
-# Copy workaround script for incorrect hostname
-COPY changehostname.c /
-COPY --chmod=755 start_with_right_hostname.sh deep_learning_container.py /usr/local/bin/
+RUN ${PIP} install --no-cache-dir "sagemaker-pytorch-inference==${SM_TOOLKIT_VERSION}" \
+ # patch default_pytorch_inference_handler.py to import torch_neuronx
+ && DEST_DIR=$(python -c "import os.path, sagemaker_pytorch_serving_container; print(os.path.dirname(sagemaker_pytorch_serving_container.__file__))") \
+ && DEST_FILE=${DEST_DIR}/default_pytorch_inference_handler.py \
+ && sed -i "s/import torch/import torch, torch_neuronx/" ${DEST_FILE} \
+ && rm -rf ~/.cache/pip/*
 
 RUN HOME_DIR=/root \
  && curl -o ${HOME_DIR}/oss_compliance.zip https://aws-dlinfra-utilities.s3.amazonaws.com/oss_compliance.zip \
@@ -145,7 +127,10 @@ RUN HOME_DIR=/root \
  && chmod +x ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh \
  && ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh ${HOME_DIR} ${PYTHON} \
  && rm -rf ${HOME_DIR}/oss_compliance* \
- && rm -rf /tmp/tmp*
+ # conda leaves an empty /root/.cache/conda/notices.cache file which is not removed by conda clean -ya
+ && rm -rf ${HOME_DIR}/.cache/conda
+
+RUN curl -o /license.txt  https://aws-dlc-licenses.s3.amazonaws.com/pytorch-2.5/license.txt
 
 # Setting up APT and PIP repo for neuron artifacts
 ARG NEURON_APT_REPO=https://apt.repos.neuron.amazonaws.com
@@ -164,12 +149,15 @@ ARG NEURON_ARTIFACT_PATH=/root/neuron_artifacts
 ARG IGNORE_MISSING_NEURON_COMPONENTS=false
 RUN IGNORE_MISSING_NEURON_COMPONENTS=$(echo ${IGNORE_MISSING_NEURON_COMPONENTS} | tr '[:upper:]' '[:lower:]')
 
-ARG NEURONX_RUNTIME_LIB_VERSION=2.x.25459.0-12425f607
 ARG NEURONX_COLLECTIVES_LIB_VERSION=2.x.27165.0-d10c36646
+ARG NEURONX_RUNTIME_LIB_VERSION=2.x.25459.0-12425f607
 ARG NEURONX_TOOLS_VERSION=2.0.12794.0
 
 ARG NEURONX_CC_VERSION=2.0.133482.0a0
-ARG NEURONX_JAX_TRAINING_VERSION=0.1.20250410
+ARG NEURONX_FRAMEWORK_VERSION=2.6.0.2.6.0
+ARG NEURONX_TRANSFORMERS_VERSION=0.13.470
+ARG NEURONX_DISTRIBUTED_VERSION=0.10.0
+ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.1.0
 
 FROM base AS dev
 
@@ -223,35 +211,39 @@ RUN --mount=type=bind,source=pip,target=${NEURON_ARTIFACT_PATH}/pip \
         done; \
         if [ ! -z "${packages}" ]; then \
             echo "Installing packages: ${packages} with flags ${flags}"; \
-            ${PIP} install --no-cache-dir --force-reinstall \
+            ${PIP} install --no-cache-dir \
                 --extra-index-url="file:///${NEURON_ARTIFACT_PATH}/pip" \
                 ${packages} ${flags}; \
         fi; \
     } \
- && install_pip_package "neuronx-cc:${NEURONX_CC_VERSION}:" "jax-neuronx:${NEURONX_JAX_TRAINING_VERSION}:" \
+ && install_pip_package "neuronx-cc:${NEURONX_CC_VERSION}:" "torch-neuronx:${NEURONX_FRAMEWORK_VERSION}:" \
+ && install_pip_package "transformers-neuronx:${NEURONX_TRANSFORMERS_VERSION}:" \
+ && install_pip_package "neuronx_distributed:${NEURONX_DISTRIBUTED_VERSION}:--no-deps" \
+ && install_pip_package "neuronx_distributed_inference:${NEURONX_DISTRIBUTED_INFERENCE_VERSION}:--no-deps" \
  && rm -rf ~/.cache/pip/*
 
-FROM base AS repo
+ FROM base AS repo
 
-# Install Neuron components from the apt and pip repos 
-RUN apt-get update \
+ # Install Neuron components from the apt and pip repos 
+ RUN apt-get update \
  && apt-get install -y \
     aws-neuronx-tools \
     aws-neuronx-collectives \
     aws-neuronx-runtime-lib \
+ && pip install --no-cache-dir \
+    neuronx-cc \
+    torch-neuronx \
+    transformers-neuronx \
+ && pip install --no-cache-dir --no-deps \
+    neuronx_distributed \
+    neuronx_distributed_inference \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
- && apt-get clean \
- && ${PIP} install --no-cache-dir --force-reinstall \
-    neuronx-cc \
-    jax-neuronx \
- && rm -rf ~/.cache/pip/*
-
+ && rm -rf ~/.cache/pip/* \
+ && apt-get clean
 
 FROM base AS prod
 
-# Install Neuron components
-# Install Neuron Driver, Runtime and Tools
 RUN apt-get update \
  && apt-get install -y \
     aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
@@ -261,16 +253,20 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-# Install JAX & Neuron CC
-RUN ${PIP} install --no-cache-dir --force-reinstall \
-    neuronx-cc==$NEURONX_CC_VERSION \
-    jax-neuronx==$NEURONX_JAX_TRAINING_VERSION \
+RUN pip install --no-cache-dir \
+   neuronx-cc==$NEURONX_CC_VERSION \
+   torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
+   transformers-neuronx==$NEURONX_TRANSFORMERS_VERSION \ 
+ && pip install --no-cache-dir --no-deps \
+    neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
+    neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
  && rm -rf ~/.cache/pip/*
 
 FROM ${BUILD_STAGE} AS final
 
-# Starts framework
-ENTRYPOINT ["bash", "-m", "start_with_right_hostname.sh"]
-CMD ["/bin/bash"]
+EXPOSE 8080 8081
+
+ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
+CMD ["/usr/local/bin/entrypoint.sh"]
 
 HEALTHCHECK CMD curl --fail http://localhost:8080/ping || exit 1
