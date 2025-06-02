@@ -87,7 +87,7 @@ RUN /opt/conda/bin/mamba install -c conda-forge \
  && rm -rf ~/.cache/pip/*
 
 RUN ${PIP} install --no-cache-dir -U \
-    opencv-python>=4.8.1.78 \
+    "opencv-python>=4.8.1.78" \
     "numpy<1.24,>1.21" \
     "scipy>=1.8.0" \
     six \
