@@ -41,7 +41,7 @@ AWS Neuron Deep Learning Containers (DLCs) are a set of Docker images for traini
 
 | Framework                                                                                                                              | Neuron Packages                                       | Neuron SDK Version | Supported EC2 Instance Types | Python Version Options | ECR Public URL                                                                            |
 |----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|--------------------|------------------------------|------------------------|-------------------------------------------------------------------------------------------|
-| [VLLM 0.7](https://github.com/aws-neuron/deep-learning-containers/blob/2.24.0/docker/vllm/inference/0.7.2/Dockerfile.neuronx) | vllm-neuronx, libneuronxla | Neuron 2.24.0      | trn1,trn2,inf2                        | 3.10 (py310)           | public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.7.2-neuronx-py310-sdk2.24.0-ubuntu22.04 |
+| [VLLM 0.7](https://github.com/aws-neuron/deep-learning-containers/blob/2.24.0/docker/vllm/inference/0.7.2/Dockerfile.neuronx) | vllm-neuronx, libneuronxla, neuronx_distributed, neuronx_distributed_inference, torch-neuronx, transformers-neuronx, aws-neuronx-tools | Neuron 2.24.0      | trn1,trn2,inf2                        | 3.10 (py310)           | public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.7.2-neuronx-py310-sdk2.24.0-ubuntu22.04 |
 
 ## Security
 
