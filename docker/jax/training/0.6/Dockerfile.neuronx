@@ -171,69 +171,9 @@ ARG NEURONX_TOOLS_VERSION=2.24.54.0
 ARG NEURONX_CC_VERSION=2.19.8089.0
 ARG NEURONX_JAX_TRAINING_VERSION=0.6.0.1.0.1296+1f770067
 
-FROM base AS dev
-
-RUN --mount=type=bind,source=apt,target=${NEURON_ARTIFACT_PATH}/apt \
-    install_apt_package() { \
-        pkg_name=$1; \
-        version_arg=$2; \
-        if [ -f "${NEURON_ARTIFACT_PATH}/apt/${version_arg}" ]; then \
-            apt-get install -y ${NEURON_ARTIFACT_PATH}/apt/${version_arg}; \
-        elif [ "${IGNORE_MISSING_NEURON_COMPONENTS}" = "false" ]; then \
-            apt-get install -y ${pkg_name}=${version_arg}; \
-        else \
-            echo "Ignoring package ${pkg_name}"; \
-        fi; \
-    } \
- && apt-get update \
- && install_apt_package "aws-neuronx-collectives" "${NEURONX_COLLECTIVES_LIB_VERSION}" \
- && install_apt_package "aws-neuronx-runtime-lib" "${NEURONX_RUNTIME_LIB_VERSION}" \
- && install_apt_package "aws-neuronx-tools" "${NEURONX_TOOLS_VERSION}" \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /tmp/tmp* \
- && apt-get clean
-
-RUN --mount=type=bind,source=pip,target=${NEURON_ARTIFACT_PATH}/pip \
-    install_pip_package() { \
-        packages=""; \
-        flags=""; \
-        while [ "$#" -gt 0 ]; do \
-            pkg_name=$(echo $1 | cut -d: -f1); \
-            version_arg=$(echo $1 | cut -d: -f2); \
-            extra_flags=$(echo $1 | cut -d: -f3); \
-            if [ -f "${NEURON_ARTIFACT_PATH}/pip/${version_arg}" ]; then \
-                packages="${packages} ${NEURON_ARTIFACT_PATH}/pip/${version_arg}"; \
-            else \
-                if [ "${IGNORE_MISSING_NEURON_COMPONENTS}" = "false" ]; then \
-                    packages="${packages} ${pkg_name}==${version_arg}"; \
-                else \
-                    echo "Ignoring package ${pkg_name}"; \
-                fi; \
-            fi; \
-            # Store unique flags
-            if [ ! -z "${extra_flags}" ]; then \
-                for flag in $(echo "${extra_flags}" | tr ' ' '\n'); do \
-                    case " ${flags} " in \
-                        *" ${flag} "*) ;; \
-                        *) flags="${flags} ${flag}" ;; \
-                    esac \
-                done; \
-            fi; \
-            shift; \
-        done; \
-        if [ ! -z "${packages}" ]; then \
-            echo "Installing packages: ${packages} with flags ${flags}"; \
-            ${PIP} install --no-cache-dir --force-reinstall \
-                --extra-index-url="file:///${NEURON_ARTIFACT_PATH}/pip" \
-                ${packages} ${flags}; \
-        fi; \
-    } \
- && install_pip_package "neuronx-cc:${NEURONX_CC_VERSION}:" "jax-neuronx:${NEURONX_JAX_TRAINING_VERSION}:" \
- && rm -rf ~/.cache/pip/*
-
 FROM base AS repo
 
-# Install Neuron components from the apt and pip repos 
+# Install Neuron components from the apt and pip repos (latest versions)
 RUN apt-get update \
  && apt-get install -y \
     aws-neuronx-tools \
@@ -241,12 +181,12 @@ RUN apt-get update \
     aws-neuronx-runtime-lib \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
- && apt-get clean \
- && ${PIP} install --no-cache-dir --force-reinstall \
+ && apt-get clean
+
+RUN ${PIP} install --no-cache-dir --force-reinstall \
     neuronx-cc \
     jax-neuronx \
  && rm -rf ~/.cache/pip/*
-
 
 FROM base AS prod
 

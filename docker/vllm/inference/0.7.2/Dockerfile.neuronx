@@ -136,7 +136,6 @@ RUN HOME_DIR=/root \
  # conda leaves an empty /root/.cache/conda/notices.cache file which is not removed by conda clean -ya
  && rm -rf ${HOME_DIR}/.cache/conda
 
-
 # Setting up APT and PIP repo for neuron artifacts
 ARG NEURON_APT_REPO=https://apt.repos.neuron.amazonaws.com
 ARG NEURON_APT_REPO_KEY
@@ -178,55 +177,57 @@ RUN --mount=type=secret,id=ssh_key,target=/root/.ssh/id_ed25519,mode=0600 \
 
 FROM base AS repo
 
-# Install Neuron components from the apt and pip repos 
+# Install Neuron components from the apt and pip repos (latest versions)
 RUN apt-get update \
  && apt-get install -y \
-    aws-neuronx-tools \
-    aws-neuronx-collectives \
-    aws-neuronx-runtime-lib \
- && pip install --no-cache-dir \
-    neuronx-cc \
-    torch-neuronx \
-    neuronx_distributed \
-    neuronx_distributed_inference \
+   aws-neuronx-tools \
+   aws-neuronx-collectives \
+   aws-neuronx-runtime-lib \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
- && rm -rf ~/.cache/pip/* \
  && apt-get clean
+
+RUN ${PIP} install --no-cache-dir \
+   neuronx-cc \
+   torch-neuronx \
+   neuronx_distributed \
+   neuronx_distributed_inference \
+ && rm -rf ~/.cache/pip/*
 
 # Install VLLM from source
 COPY --from=vllm-clone /vllm /opt/vllm
 WORKDIR /opt/vllm
-RUN pip install -r requirements-neuron.txt \
-    && VLLM_TARGET_DEVICE="neuron" pip install -e .
+
+RUN ${PIP} install --no-cache-dir -r requirements-neuron.txt \
+ && VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir -e .
 
 FROM base AS prod
 
+# Install Neuron components with specific versions
 RUN apt-get update \
  && apt-get install -y \
-    aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
-    aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
-    aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
+   aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
+   aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
+   aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-RUN pip install --no-cache-dir \
-    neuronx-cc==$NEURONX_CC_VERSION \
-    torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
-    neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
-    neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
+RUN ${PIP} install --no-cache-dir \
+   neuronx-cc==$NEURONX_CC_VERSION \
+   torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
+   neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
+   neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
  && rm -rf ~/.cache/pip/*
 
 # Install VLLM from source
 RUN cd /tmp \
-    && git clone -b neuron-2.24-vllm-v0.7.2 https://github.com/aws-neuron/upstreaming-to-vllm.git \
-    && cd upstreaming-to-vllm \
-    && pip install -r requirements-neuron.txt \
-    && SETUPTOOLS_SCM_PRETEND_VERSION="2.24.0.0" VLLM_TARGET_DEVICE="neuron" pip install -e . \
-    && cd / \
-    && rm -rf /tmp/upstreaming-to-vllm
-
+ && git clone -b neuron-2.24-vllm-v0.7.2 https://github.com/aws-neuron/upstreaming-to-vllm.git \
+ && cd upstreaming-to-vllm \
+ && ${PIP} install --no-cache-dir -r requirements-neuron.txt \
+ && SETUPTOOLS_SCM_PRETEND_VERSION="2.24.0.0" VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir -e . \
+ && cd / \
+ && rm -rf /tmp/upstreaming-to-vllm
 
 WORKDIR ${APP_MOUNT}/vllm
 
