@@ -2,6 +2,31 @@
 
 AWS Neuron Deep Learning Containers (DLCs) are a set of Docker images for training and serving models on AWS Trainium and Inferentia instances using AWS Neuron SDK. For more documentation, please refer to [Neuron Containers Overview](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/containers/index.html).
 
+## Building and Customizing Dockerfiles
+
+### Prerequisites
+
+To build the Dockerfiles successfully, ensure the files under the `common/` directory is in the same parent folder as the Dockerfile. The common directory contains shared scripts and configuration files required by all container builds.
+
+### Building a Container
+
+To build a specific container, navigate to the repository root and use Docker build with the appropriate context:
+
+```bash
+# Example: Build PyTorch 2.7.0 inference container
+docker build -f docker/pytorch/inference/2.7.0/Dockerfile.neuronx -t my-neuron-container .
+```
+
+### Customizing Containers
+
+You can customize the containers by:
+
+1. **Modifying existing Dockerfiles**: Edit the Dockerfile to add additional packages or configurations
+2. **Creating derived images**: Use the pre-built containers as base images for your custom requirements
+3. **Adding custom scripts**: Place additional scripts and reference them in your Dockerfile
+
+For detailed customization examples and best practices, refer to the [Neuron DLC Customization Guide](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/containers/dlc-then-customize-devflow.html#containers-dlc-then-customize-devflow).
+
 ## Containers
 
 ### pytorch-inference-neuron
