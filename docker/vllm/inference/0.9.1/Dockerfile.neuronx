@@ -220,10 +220,10 @@ RUN ${PIP} install --no-cache-dir \
 
 # Install VLLM from source
 RUN cd /tmp \
- && git clone -b neuron-2.24-vllm-v0.7.2 https://github.com/aws-neuron/upstreaming-to-vllm.git \
+ && git clone -b 2.25.0 https://github.com/aws-neuron/upstreaming-to-vllm.git \
  && cd upstreaming-to-vllm \
  && ${PIP} install --no-cache-dir -r requirements/neuron.txt \
- && SETUPTOOLS_SCM_PRETEND_VERSION="2.24.0.0" VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir -e . \
+ && VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir -e . \
  && cd / \
  && rm -rf /tmp/upstreaming-to-vllm
 
