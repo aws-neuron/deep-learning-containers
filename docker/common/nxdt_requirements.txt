@@ -30,7 +30,7 @@ pybind11
 pytorch-lightning==2.5.0
 ipadic
 mecab-python3
-protobuf==3.20.3
+protobuf==4.25.8
 datasets==2.19.1
 dill==0.3.8
 nemo_toolkit==2.1.0
