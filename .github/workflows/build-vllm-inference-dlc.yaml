@@ -1,0 +1,36 @@
+name: Build PyTorch VLLM Inference DLC
+
+
+on:
+  workflow_dispatch:    
+  push:
+    paths:
+      - 'docker/vllm/inference/0.9.1/Dockerfile.neuronx'
+      - 'common/**'
+  pull_request:        
+    paths:
+      - 'docker/vllm/inference/0.9.1/Dockerfile.neuronx'
+      - 'common/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .  # repo as root folder so common/files are included as build context
+          file: docker/vllm/inference/0.9.1/Dockerfile.neuronx
+          platforms: linux/amd64
+          tags: neuron_dlc/vllm-inference:0.9.1
+          push: false  # don't push anywhere
