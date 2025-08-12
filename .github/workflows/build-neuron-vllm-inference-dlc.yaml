@@ -26,7 +26,7 @@ jobs:
       matrix: ${{ steps.changes.outputs.matrix }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -76,7 +76,7 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Copy common files next to Dockerfile
         run: |
