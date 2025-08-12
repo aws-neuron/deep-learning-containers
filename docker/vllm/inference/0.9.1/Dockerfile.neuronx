@@ -223,9 +223,7 @@ RUN cd /tmp \
  && git clone -b 2.25.0 https://github.com/aws-neuron/upstreaming-to-vllm.git \
  && cd upstreaming-to-vllm \
  && ${PIP} install --no-cache-dir -r requirements/neuron.txt \
- && VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir -e . \
- && cd / \
- && rm -rf /tmp/upstreaming-to-vllm
+ && VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir -e .
 
 WORKDIR ${APP_MOUNT}/vllm
 
