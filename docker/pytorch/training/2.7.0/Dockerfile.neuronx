@@ -208,9 +208,9 @@ RUN HOME_DIR=/root \
 RUN curl -o /license.txt  https://aws-dlc-licenses.s3.amazonaws.com/pytorch-2.7/license.txt
 
 # Setting up APT and PIP repo for neuron artifacts
-ARG NEURON_APT_REPO=https://apt.repos.neuron.amazonaws.com
+ARG NEURON_APT_REPO=apt.repos.neuron.amazonaws.com
 ARG NEURON_APT_REPO_KEY
-ARG NEURON_PIP_REPO=https://pip.repos.neuron.amazonaws.com
+ARG NEURON_PIP_REPO=pip.repos.neuron.amazonaws.com
 ARG NEURON_PIP_REPO_KEY
 RUN mkdir -p /etc/apt/keyrings \
  && APT_REPO_PREFIX=$([ -n "${NEURON_APT_REPO_KEY}" ] && echo "${NEURON_APT_REPO_KEY}@" || echo "") \
