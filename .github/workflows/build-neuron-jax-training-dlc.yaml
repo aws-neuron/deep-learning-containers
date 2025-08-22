@@ -1,0 +1,95 @@
+name: Build Neuron JAX Training DLC
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docker/jax/training/**'
+      - 'docker/common/**'
+      - '.github/workflows/build-neuron-jax-training-dlc.yaml'
+  pull_request:
+    branches: [ main ]        
+    paths:
+      - 'docker/jax/training/**'
+      - 'docker/common/**'
+  workflow_dispatch:    
+    inputs:
+        jax_versions:
+          description: 'JAX versions to build (comma-separated, e.g., "0.6,0.5")'
+          required: false
+          default: '0.6'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.changes.outputs.matrix }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed versions
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Use manual input versions
+            versions="${{ github.event.inputs.jax_versions }}"
+            matrix_json="[]"
+            IFS=',' read -ra VERSION_ARRAY <<< "$versions"
+            for version in "${VERSION_ARRAY[@]}"; do
+              version=$(echo "$version" | xargs) # trim whitespace
+              path="docker/jax/training/$version"
+              if [ -f "$path/Dockerfile.neuronx" ]; then
+                matrix_json=$(echo "$matrix_json" | jq ". + [{\"version\": \"$version\", \"path\": \"$path\"}]")
+              fi
+            done
+          else
+            # Detect changed Dockerfile paths
+            changed_paths=$(git diff --name-only origin/${{ github.base_ref }} ${{ github.sha }} \
+              | grep '^docker/jax/training/.*/Dockerfile.neuronx$' \
+              | xargs -n1 dirname \
+              | sort -u)
+            
+            matrix_json="[]"
+            for path in $changed_paths; do
+              version=$(basename "$path")
+              matrix_json=$(echo "$matrix_json" | jq ". + [{\"version\": \"$version\", \"path\": \"$path\"}]")
+            done
+          fi
+
+          matrix_compact=$(echo "$matrix_json" | jq -c .)
+          echo "Matrix JSON: $matrix_compact"
+          echo "matrix=$matrix_compact" >> $GITHUB_OUTPUT
+
+  build:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+
+    steps:
+      - name: Delete unnecessary tools folder to free runner space
+        run: rm -rf /opt/hostedtoolcache
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Copy common files next to Dockerfile
+        run: |
+          cp -r docker/common/* ${{ matrix.path }}/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.path }}
+          file: ${{ matrix.path }}/Dockerfile.neuronx
+          platforms: linux/amd64
+          tags: neuron-jax-training-dlc:${{ matrix.version }}-${{ github.sha }}
+          push: false
