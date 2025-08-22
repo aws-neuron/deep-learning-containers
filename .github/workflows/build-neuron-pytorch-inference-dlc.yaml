@@ -26,7 +26,7 @@ jobs:
       matrix: ${{ steps.changes.outputs.matrix }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -72,11 +72,18 @@ jobs:
         include: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
 
     steps:
-      - name: Delete unnecessary tools folder to free runner space
-        run: rm -rf /opt/hostedtoolcache
+      - name: Free up runner space
+        run: |
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/az
+          docker system prune -af
+          df -h
 
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Copy common files next to Dockerfile
         run: |

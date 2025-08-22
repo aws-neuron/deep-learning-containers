@@ -1,23 +1,23 @@
-name: Build Neuron JAX Training DLC
+name: Build Neuron PyTorch Training DLC
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'docker/jax/training/**'
+      - 'docker/pytorch/training/**'
       - 'docker/common/**'
-      - '.github/workflows/build-neuron-jax-training-dlc.yaml'
+      - '.github/workflows/build-neuron-pytorch-training-dlc.yaml'
   pull_request:
     branches: [ main ]        
     paths:
-      - 'docker/jax/training/**'
+      - 'docker/pytorch/training/**'
       - 'docker/common/**'
   workflow_dispatch:    
     inputs:
-        jax_versions:
-          description: 'JAX versions to build (comma-separated, e.g., "0.6,0.5")'
+        pytorch_versions:
+          description: 'PyTorch versions to build (comma-separated, e.g., "2.7.0,2.6.0")'
           required: false
-          default: '0.6'
+          default: '2.7.0'
 
 jobs:
   detect-changes:
@@ -35,12 +35,12 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             # Use manual input versions
-            versions="${{ github.event.inputs.jax_versions }}"
+            versions="${{ github.event.inputs.pytorch_versions }}"
             matrix_json="[]"
             IFS=',' read -ra VERSION_ARRAY <<< "$versions"
             for version in "${VERSION_ARRAY[@]}"; do
               version=$(echo "$version" | xargs) # trim whitespace
-              path="docker/jax/training/$version"
+              path="docker/pytorch/training/$version"
               if [ -f "$path/Dockerfile.neuronx" ]; then
                 matrix_json=$(echo "$matrix_json" | jq ". + [{\"version\": \"$version\", \"path\": \"$path\"}]")
               fi
@@ -48,7 +48,7 @@ jobs:
           else
             # Detect changed Dockerfile paths
             changed_paths=$(git diff --name-only origin/${{ github.base_ref }} ${{ github.sha }} \
-              | grep '^docker/jax/training/.*/Dockerfile.neuronx$' \
+              | grep '^docker/pytorch/training/.*/Dockerfile.neuronx$' \
               | xargs -n1 dirname \
               | sort -u)
             
@@ -98,5 +98,5 @@ jobs:
           context: ${{ matrix.path }}
           file: ${{ matrix.path }}/Dockerfile.neuronx
           platforms: linux/amd64
-          tags: neuron-jax-training-dlc:${{ matrix.version }}-${{ github.sha }}
+          tags: neuron-pytorch-training-dlc:${{ matrix.version }}-${{ github.sha }}
           push: false
