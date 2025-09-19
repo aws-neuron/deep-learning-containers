@@ -2,15 +2,16 @@ ARG BUILD_STAGE=prod
 
 FROM public.ecr.aws/docker/library/ubuntu:22.04 AS base
 
-LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
+LABEL dlc_major_version="1"
 
-# This arg required to stop docker build waiting for region configuration while installing tz data from ubuntu 22
-ARG DEBIAN_FRONTEND=noninteractive
 ARG PYTHON=python3.11
 ARG PYTHON_VERSION=3.11.13
 ARG PIP=pip3
 ARG OMPI_VERSION=4.1.5
+
+# This arg required to stop docker build waiting for region configuration while installing tz data from ubuntu 22
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Python won’t try to write .pyc or .pyo files on the import of source modules
 # Force stdin, stdout and stderr to be totally unbuffered. Good for logging
@@ -25,6 +26,8 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib64"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/openmpi/lib64"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
 ENV PATH="/opt/aws/neuron/bin:${PATH}"
+ENV SAGEMAKER_TRAINING_MODULE=sagemaker_pytorch_container.training:main
+ENV DGLBACKEND=pytorch
 
 RUN apt-get update \
  && apt-get upgrade -y \
@@ -81,8 +84,7 @@ RUN mkdir -p /tmp/openmpi \
  && rm -rf /tmp/openmpi
 
 # Install packages and configure SSH for MPI operator in k8s
-RUN apt-get update \
- && apt-get install -y openmpi-bin openssh-server \
+RUN apt-get update && apt-get install -y openmpi-bin openssh-server \
  && mkdir -p /var/run/sshd \
  && echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config \
  && echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config \
@@ -101,13 +103,59 @@ RUN wget -q https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VER
  && ln -s /usr/local/bin/pip3 /usr/bin/pip \
  && ln -s /usr/local/bin/$PYTHON /usr/local/bin/python \
  && ${PIP} --no-cache-dir install --upgrade \
-    "awscli<2" \
     pip \
-    requests \
-    setuptools \
  && rm -rf ~/.cache/pip/*
 
-# Install EFA
+WORKDIR /
+
+# The ENV variables declared below are changed in the previous section
+# Grouping these ENV variables in the first section causes
+# ompi_info to fail. This is only observed in CPU containers
+ENV PATH="$PATH:/home/.openmpi/bin"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/.openmpi/lib/"
+RUN ompi_info --parsable --all | grep mpi_built_with_cuda_support:value
+
+RUN ${PIP} install --no-cache-dir -U \
+    "bokeh>=2.3,<3" \
+    "awscli<2" \
+    scipy \
+    click \
+    "cryptography" \
+    "sagemaker>=2,<3" \
+    "sagemaker-pytorch-training" \
+    psutil==5.6.7 \
+    dataset \
+    Pillow \
+ && rm -rf ~/.cache/pip/*
+
+RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
+
+# Copy the NxDT Installation files
+COPY --chmod=755 apex_setup.py nxdt_install_setup.sh nxdt_requirements.txt /root/
+
+# attrs, neuronx-cc required: >=19.2.0, sagemaker <24,>=23.1.0
+# protobuf neuronx-cc<4, sagemaker-training >=3.9.2,<=3.20.3
+# awscli 1.25.47 has requirement docutils<0.17,>=0.10
+# etcd for kubernetes installation
+# awscli 1.27.127 has requirement rsa<4.8,>=3.1.2, but you have rsa 4.9.
+# awscli 1.27.127 requires urllib3 < 1.27, python-etcd requires urllib3 >= 1.7, latest urllib3 release is 2.0.2
+RUN ${PIP} install --no-cache-dir -U \
+    "attrs<24,>=23.1.0" \
+    "docutils>=0.10,<0.17" \
+    "rsa<4.8,>=3.1.2" \
+    "python-etcd" \
+    "urllib3>=1.26.0,<1.27" \
+ # Install extra packages needed by sagemaker (for passing test_utility_packages_using_import)
+ && ${PIP} install --no-cache-dir -U \
+    "bokeh>=3.0.1,<4" \
+    "imageio>=2.22,<3" \
+    "opencv-python>=4.8.1.78" \
+    "plotly>=5.11,<6" \
+    "seaborn>=0.12,<1" \
+    "shap>=0.41,<1" \
+ && rm -rf ~/.cache/pip/*
+
+# EFA Installer does apt get. Make sure to run apt update before that
 RUN apt-get update \
  && cd $HOME \
  && curl -O https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz \
@@ -122,16 +170,21 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-WORKDIR /
-
-# The ENV variables declared below are changed in the previous section
-# Grouping these ENV variables in the first section causes
-# ompi_info to fail. This is only observed in CPU containers
-ENV PATH="$PATH:/home/.openmpi/bin"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/.openmpi/lib/"
-RUN ompi_info --parsable --all | grep mpi_built_with_cuda_support:value
-
-RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
+# Install some common packages used by training scripts
+# torchvision needed for MLP. since it depends on torch and torch neuron/torch
+# is already installed install it with nodeps
+RUN pip3 install --no-cache-dir --no-deps -U \
+    torchvision \
+ # Needed for running bert training scripts
+ && pip3 install --no-cache-dir -U \
+    graphviz \
+    tensorboard==2.6 \
+    accelerate \
+ # Install NxDT dependencies
+ && ${PIP} install --no-cache-dir \
+    Cython \
+    wheel \
+ && rm -rf ~/.cache/pip/*
 
 # Copy workaround script for incorrect hostname
 COPY changehostname.c /
@@ -147,6 +200,8 @@ RUN HOME_DIR=/root \
  && rm -rf ${HOME_DIR}/oss_compliance* \
  && rm -rf /tmp/tmp*
 
+RUN curl -o /license.txt  https://aws-dlc-licenses.s3.amazonaws.com/pytorch-2.8/license.txt
+
 # Setting up APT and PIP repo for neuron artifacts
 ARG NEURON_APT_REPO=apt.repos.neuron.amazonaws.com
 ARG NEURON_APT_REPO_KEY
@@ -159,12 +214,14 @@ RUN mkdir -p /etc/apt/keyrings \
  && PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
  && ${PIP} config set global.extra-index-url "${PIP_REPO_URL}"
 
-# Neuron SDK components version numbers
-ARG NEURONX_RUNTIME_LIB_VERSION=2.28.23.0-dd5879008
+# Neuron SDK components
 ARG NEURONX_COLLECTIVES_LIB_VERSION=2.28.27.0-bc30ece58
+ARG NEURONX_RUNTIME_LIB_VERSION=2.28.23.0-dd5879008
 ARG NEURONX_TOOLS_VERSION=2.26.14.0
+ARG NEURONX_FRAMEWORK_VERSION=2.8.0.2.10.13553+1e4dd6ca
 ARG NEURONX_CC_VERSION=2.21.18209.0+043b1bf7
-ARG NEURONX_JAX_TRAINING_VERSION=0.6.2.1.0.6446+d8c0de77
+ARG NEURONX_DISTRIBUTED_VERSION=0.15.22404+1f27bddf
+ARG NEURONX_DISTRIBUTED_TRAINING_VERSION=1.6.0
 
 FROM base AS repo
 
@@ -179,30 +236,45 @@ RUN apt-get update \
  && apt-get clean
 
 RUN ${PIP} install --no-cache-dir --force-reinstall \
+    torch-neuronx \
     neuronx-cc \
-    jax-neuronx \
+    neuronx_distributed \
+    neuronx_distributed_training \
  && rm -rf ~/.cache/pip/*
 
 FROM base AS prod
 
-# Install Neuron components
-# Install Neuron Driver, Runtime and Tools
+# Install Neuron components with specific versions
 RUN apt-get update \
  && apt-get install -y \
-    aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
-    aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
-    aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
+   aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
+   aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
+   aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-# Install JAX & Neuron CC
-RUN ${PIP} install --no-cache-dir --force-reinstall \
-    neuronx-cc==$NEURONX_CC_VERSION \
-    jax-neuronx==$NEURONX_JAX_TRAINING_VERSION \
+RUN ${PIP} install --force-reinstall \
+   torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
+   neuronx-cc==$NEURONX_CC_VERSION \
+   neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
+   neuronx_distributed_training==$NEURONX_DISTRIBUTED_TRAINING_VERSION \
  && rm -rf ~/.cache/pip/*
 
 FROM ${BUILD_STAGE} AS final
+
+## Installation for Neuronx Distributed Training framework
+# Clone and build Apex
+RUN git clone https://github.com/NVIDIA/apex.git /root/apex \
+ && cd /root/apex \
+ && git checkout 23.05 \
+ && cp /root/apex_setup.py setup.py \
+ && python3 setup.py bdist_wheel \
+ # Install dependencies from requirements and extras for SageMaker usecase
+ && ${PIP} install --no-cache-dir -r /root/nxdt_requirements.txt /root/apex/dist/apex-0.1-py3-none-any.whl \
+ && /root/nxdt_install_setup.sh \
+ && ${PIP} install --force-reinstall "torch==2.8.0" \
+ && rm -rf ~/.cache/pip/*
 
 # Starts framework
 ENTRYPOINT ["bash", "-m", "start_with_right_hostname.sh"]
