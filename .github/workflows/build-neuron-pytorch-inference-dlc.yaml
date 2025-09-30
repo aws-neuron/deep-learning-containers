@@ -4,14 +4,14 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'docker/pytorch/inference/**'
-      - 'docker/common/**'
+      - 'pytorch/inference/**'
+      - 'common/**'
       - '.github/workflows/build-neuron-pytorch-inference-dlc.yaml'
   pull_request:
     branches: [ main ]        
     paths:
-      - 'docker/pytorch/inference/**'
-      - 'docker/common/**'
+      - 'pytorch/inference/**'
+      - 'common/**'
   workflow_dispatch:    
     inputs:
         pytorch_versions:
@@ -46,7 +46,7 @@ jobs:
               version=$(echo "$version" | xargs) # trim whitespace
               # Validate version format (only allow alphanumeric, dots, and hyphens)
               if [[ "$version" =~ ^[a-zA-Z0-9.-]+$ ]]; then
-                path="docker/pytorch/inference/$version"
+                path="pytorch/inference/$version"
                 if [ -f "$path/Dockerfile.neuronx" ]; then
                   matrix_json=$(echo "$matrix_json" | jq --arg v "$version" --arg p "$path" '. + [{"version": $v, "path": $p}]')
                 fi
@@ -55,7 +55,7 @@ jobs:
           else
             # Detect changed Dockerfile paths
             changed_paths=$(git diff --name-only "origin/$BASE_REF" "$SHA" \
-              | grep '^docker/pytorch/inference/.*/Dockerfile.neuronx$' \
+              | grep '^pytorch/inference/.*/Dockerfile.neuronx$' \
               | xargs -n1 dirname \
               | sort -u)
             
@@ -96,7 +96,7 @@ jobs:
         env:
           MATRIX_PATH: ${{ matrix.path }}
         run: |
-          cp -r docker/common/* "$MATRIX_PATH"/
+          cp -r common/* "$MATRIX_PATH"/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

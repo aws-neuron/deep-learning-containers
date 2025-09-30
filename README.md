@@ -14,7 +14,7 @@ To build a specific container, navigate to the repository root and use Docker bu
 
 ```bash
 # Example: Build PyTorch 2.7.0 inference container
-docker build -f docker/pytorch/inference/2.7.0/Dockerfile.neuronx -t my-neuron-container .
+docker build -f pytorch/inference/2.7.0/Dockerfile.neuronx -t my-neuron-container .
 ```
 
 ### Customizing Containers
