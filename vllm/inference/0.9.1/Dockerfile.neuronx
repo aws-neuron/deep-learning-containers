@@ -89,6 +89,21 @@ RUN /opt/conda/bin/mamba install -c conda-forge \
     ipython \
  && rm -rf ~/.cache/pip/*
 
+# Install EFA
+RUN apt-get update \
+ && cd $HOME \
+ && curl -O https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz \
+ && wget https://efa-installer.amazonaws.com/aws-efa-installer.key && gpg --import aws-efa-installer.key \
+ && cat aws-efa-installer.key | gpg --fingerprint \
+ && wget https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz.sig && gpg --verify ./aws-efa-installer-latest.tar.gz.sig \
+ && tar -xf aws-efa-installer-latest.tar.gz \
+ && cd aws-efa-installer \
+ && ./efa_installer.sh -y -g --skip-kmod --skip-limit-conf --no-verify \
+ && cd $HOME \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
 COPY --chmod=755 vllm_entrypoint.py neuron-monitor.sh deep_learning_container.py /usr/local/bin/
 
 ### Mount Point ###
