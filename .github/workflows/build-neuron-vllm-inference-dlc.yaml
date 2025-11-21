@@ -26,7 +26,7 @@ jobs:
       matrix: ${{ steps.changes.outputs.matrix }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -90,7 +90,7 @@ jobs:
           df -h
 
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Copy common files next to Dockerfile
         env:
