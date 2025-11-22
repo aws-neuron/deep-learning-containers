@@ -4,21 +4,21 @@ FROM public.ecr.aws/docker/library/ubuntu:24.04 AS base
 
 LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
+LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG PIP=pip3
 ARG PYTHON=python3.12
 ARG PYTHON_VERSION=3.12.11
-ARG MINIFORGE_VERSION=25.3.1-0
 ARG TORCHSERVE_VERSION=0.11.0
+ARG SM_TOOLKIT_VERSION=2.0.25
+ARG MINIFORGE_VERSION=25.3.1-0
 ARG PYPI_SIMPLE_URL="https://pypi.org/simple/"
-
 
 # See http://bugs.python.org/issue19846
 ENV LANG=C.UTF-8
 ENV LD_LIBRARY_PATH=/opt/aws/neuron/lib:/lib/x86_64-linux-gnu:/opt/conda/lib/:$LD_LIBRARY_PATH
 ENV PATH=/opt/conda/bin:/opt/aws/neuron/bin:$PATH
-ENV VLLM_TARGET_DEVICE=neuron
 
 RUN apt-get update \
  && apt-get upgrade -y \
@@ -28,23 +28,33 @@ RUN apt-get update \
     ca-certificates \
     cmake \
     curl \
+    dmidecode \
     emacs \
-    ffmpeg \
-    gcc \
+    environment-modules \
+    ethtool \
     git \
     gnupg2 \
     gpg-agent \
+    iproute2 \
     jq \
-    libgl1 \
+    libevent-core-2.1-7t64 \
+    libevent-pthreads-2.1-7t64 \
     libgl1-mesa-dri \
     libglib2.0-0 \
+    libnl-3-200 \
+    libnl-3-dev \
+    libnl-route-3-200 \
+    libnl-route-3-dev \
     libsm6 \
     libxext6 \
     libxrender-dev \
     libcap-dev \
     libhwloc-dev \
-    openssh-client \
     openjdk-11-jdk \
+    openssh-client \
+    pciutils \
+    tcl \
+    udev \
     unzip \
     vim \
     wget \
@@ -52,7 +62,6 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
  && apt-get clean
-
 
 # https://github.com/docker-library/openjdk/issues/261 https://github.com/docker-library/openjdk/pull/263/files
 RUN keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt; \
@@ -77,16 +86,19 @@ RUN curl -L -o ~/miniforge.sh https://github.com/conda-forge/miniforge/releases/
     charset-normalizer \
  && /opt/conda/bin/conda clean -ya
 
+RUN ${PIP} config set global.break-system-packages true
+
 RUN /opt/conda/bin/mamba install -c conda-forge \
     python=$PYTHON_VERSION \
     scikit-learn \
     h5py \
     requests \
  && conda clean -ya \
- && pip install --upgrade pip \
+ && ${PIP} install --upgrade pip --no-cache-dir -U \
     --trusted-host pypi.org --trusted-host files.pythonhosted.org \
  && ln -s /opt/conda/bin/pip /usr/local/bin/pip3 \
- && pip install \
+ && ${PIP} install --no-cache-dir -U \
+    packaging \
     enum-compat \
     ipython \
  && rm -rf ~/.cache/pip/*
@@ -106,33 +118,38 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-COPY --chmod=755 vllm_entrypoint.py neuron-monitor.sh deep_learning_container.py /usr/local/bin/
-
-### Mount Point ###
-# When launching the container, mount the code directory to /workspace
-ARG APP_MOUNT=/workspace
-VOLUME [ ${APP_MOUNT} ]
-WORKDIR ${APP_MOUNT}/vllm
-
-RUN ${PIP} install --no-cache-dir -U \
-    "opencv-python" \
-    "awscli" \
-    "pandas" \
-    "boto3" \
-    "cryptography" \
-    "pytest" \
-    "wheel" \
-    "cmake>=3.26" \
-    "setuptools-scm>=8" \
-    "jinja2" \
+RUN ${PIP} install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+ && ${PIP} install --no-cache-dir -U \
+    opencv-python>=4.8.1.78 \
+    "scipy>=1.8.0" \
+    six \
+    "awscli<2" \
+    pandas==1.* \
+    boto3 \
+    cryptography \
+    "protobuf>=3.18.3,<4" \
     torchserve==${TORCHSERVE_VERSION} \
     torch-model-archiver==${TORCHSERVE_VERSION} \
  && rm -rf ~/.cache/pip/*
 
+ENV SAGEMAKER_SERVING_MODULE=sagemaker_pytorch_serving_container.serving:main
+ENV TEMP=/home/model-server/tmp
+
 RUN useradd -m model-server \
  && mkdir -p /home/model-server/tmp /opt/ml/model \
  && chown -R model-server /home/model-server /opt/ml/model
+
+COPY --chmod=755 neuron-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+COPY --chmod=755 neuron-monitor.sh deep_learning_container.py /usr/local/bin/
+COPY --chmod=755 torchserve-neuron.sh /usr/local/bin/entrypoint.sh
 COPY config.properties /home/model-server
+
+RUN ${PIP} install --no-cache-dir "sagemaker-pytorch-inference==${SM_TOOLKIT_VERSION}" \
+ # patch default_pytorch_inference_handler.py to import torch_neuronx
+ && DEST_DIR=$(python -c "import os.path, sagemaker_pytorch_serving_container; print(os.path.dirname(sagemaker_pytorch_serving_container.__file__))") \
+ && DEST_FILE=${DEST_DIR}/default_pytorch_inference_handler.py \
+ && sed -i "s/import torch/import torch, torch_neuronx/" ${DEST_FILE} \
+ && rm -rf ~/.cache/pip/*
 
 # Compliance 
 RUN HOME_DIR=/root \
@@ -145,6 +162,8 @@ RUN HOME_DIR=/root \
  && rm -rf ${HOME_DIR}/oss_compliance* \
  # conda leaves an empty /root/.cache/conda/notices.cache file which is not removed by conda clean -ya
  && rm -rf ${HOME_DIR}/.cache/conda
+
+RUN curl -o /license.txt  https://aws-dlc-licenses.s3.amazonaws.com/pytorch-2.9/license.txt
 
 # Setting up APT and PIP repo for neuron artifacts
 ARG NEURON_APT_REPO=apt.repos.neuron.amazonaws.com
@@ -160,27 +179,14 @@ RUN mkdir -p /etc/apt/keyrings \
 ARG NEURONX_COLLECTIVES_LIB_VERSION=2.28.27.0-bc30ece58
 ARG NEURONX_RUNTIME_LIB_VERSION=2.28.23.0-dd5879008
 ARG NEURONX_TOOLS_VERSION=2.26.14.0
+
 ARG NEURONX_CC_VERSION=2.22.7534.0+c05a3358
 ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.11.18533+7b57219b
 ARG NEURONX_DISTRIBUTED_VERSION=0.15.25852+4660bc97
 ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.6.13291+f42296f9
 
-# vLLM branch names
-ARG VLLM_PRIVATE_BRANCH=2.26.1
-ARG VLLM_PUBLIC_BRANCH=2.26.1
-
-FROM base AS vllm-clone
-
-RUN mkdir -p /root/.ssh && \
-    echo "StrictHostKeyChecking no" >> /root/.ssh/config && \
-    ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
-
-WORKDIR /vllm
-
-RUN --mount=type=secret,id=ssh_key,target=/root/.ssh/id_ed25519,mode=0600 \
-    git clone -b ${VLLM_PRIVATE_BRANCH} git@github.com:aws-neuron/private-neuronx-vllm-staging.git .
-
 FROM base AS repo
+
 
 # Install Neuron components from the apt and pip repos (latest versions)
 RUN apt-get update \
@@ -192,26 +198,15 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-# Install VLLM from source
-COPY --from=vllm-clone /vllm /opt/vllm
-
-ARG NEURON_PUBLIC_PIP_REPO="https://pip.repos.neuron.amazonaws.com"
-
 RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
  && ${PIP} install --no-cache-dir \
    --index-url ${PIP_REPO_URL} \
    --trusted-host ${NEURON_PIP_REPO} \
    --extra-index-url ${PYPI_SIMPLE_URL} \
-   --extra-index-url ${NEURON_PUBLIC_PIP_REPO} \
    "neuronx-cc>=2.0" \
-   "torch-neuronx==2.8.*" \
+   "torch-neuronx==2.9.*" \
    neuronx_distributed \
-   neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
- && VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir \
-   --index-url ${PIP_REPO_URL} \
-   --trusted-host ${NEURON_PIP_REPO} \
-   --extra-index-url ${PYPI_SIMPLE_URL} \
-   -e /opt/vllm \
+   neuronx_distributed_inference \
  && rm -rf ~/.cache/pip/*
 
 FROM base AS prod
@@ -226,9 +221,6 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-# Clone VLLM source before pip installations
-RUN git clone -b ${VLLM_PUBLIC_BRANCH} https://github.com/aws-neuron/upstreaming-to-vllm.git /opt/vllm
-
 RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
  && ${PIP} install --no-cache-dir \
    --index-url ${PIP_REPO_URL} \
@@ -238,17 +230,13 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
    neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
    neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
- && VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir \
-   --index-url ${PIP_REPO_URL} \
-   --trusted-host ${NEURON_PIP_REPO} \
-   --extra-index-url ${PYPI_SIMPLE_URL} \
-   -e /opt/vllm \
  && rm -rf ~/.cache/pip/*
 
 FROM ${BUILD_STAGE} AS final
 
 EXPOSE 8080 8081
 
-ENTRYPOINT ["python", "/usr/local/bin/vllm_entrypoint.py"]
-CMD ["/bin/bash"]
+ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
+CMD ["/usr/local/bin/entrypoint.sh"]
+
 HEALTHCHECK CMD curl --fail http://localhost:8080/ping || exit 1
