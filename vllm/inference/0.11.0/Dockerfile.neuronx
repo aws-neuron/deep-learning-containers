@@ -18,7 +18,6 @@ ARG PYPI_SIMPLE_URL="https://pypi.org/simple/"
 ENV LANG=C.UTF-8
 ENV LD_LIBRARY_PATH=/opt/aws/neuron/lib:/lib/x86_64-linux-gnu:/opt/conda/lib/:$LD_LIBRARY_PATH
 ENV PATH=/opt/conda/bin:/opt/aws/neuron/bin:$PATH
-ENV VLLM_TARGET_DEVICE=neuron
 
 RUN apt-get update \
  && apt-get upgrade -y \
@@ -166,8 +165,8 @@ ARG NEURONX_DISTRIBUTED_VERSION=0.15.25852+4660bc97
 ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.6.13291+f42296f9
 
 # vLLM branch names
-ARG VLLM_PRIVATE_BRANCH=2.26.1
-ARG VLLM_PUBLIC_BRANCH=2.26.1
+ARG VLLM_PRIVATE_BRANCH=neuron-release-2.27
+ARG VLLM_PUBLIC_BRANCH=0.2.1-lts
 
 FROM base AS vllm-clone
 
@@ -178,9 +177,10 @@ RUN mkdir -p /root/.ssh && \
 WORKDIR /vllm
 
 RUN --mount=type=secret,id=ssh_key,target=/root/.ssh/id_ed25519,mode=0600 \
-    git clone -b ${VLLM_PRIVATE_BRANCH} git@github.com:aws-neuron/private-neuronx-vllm-staging.git .
+    git clone -b ${VLLM_PRIVATE_BRANCH} git@github.com:aws-neuron/private-vllm-neuron.git .
 
 FROM base AS repo
+
 
 # Install Neuron components from the apt and pip repos (latest versions)
 RUN apt-get update \
@@ -195,22 +195,15 @@ RUN apt-get update \
 # Install VLLM from source
 COPY --from=vllm-clone /vllm /opt/vllm
 
-ARG NEURON_PUBLIC_PIP_REPO="https://pip.repos.neuron.amazonaws.com"
-
 RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
  && ${PIP} install --no-cache-dir \
    --index-url ${PIP_REPO_URL} \
    --trusted-host ${NEURON_PIP_REPO} \
    --extra-index-url ${PYPI_SIMPLE_URL} \
-   --extra-index-url ${NEURON_PUBLIC_PIP_REPO} \
    "neuronx-cc>=2.0" \
    "torch-neuronx==2.8.*" \
    neuronx_distributed \
-   neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
- && VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir \
-   --index-url ${PIP_REPO_URL} \
-   --trusted-host ${NEURON_PIP_REPO} \
-   --extra-index-url ${PYPI_SIMPLE_URL} \
+   neuronx_distributed_inference \
    -e /opt/vllm \
  && rm -rf ~/.cache/pip/*
 
@@ -227,7 +220,7 @@ RUN apt-get update \
  && apt-get clean
 
 # Clone VLLM source before pip installations
-RUN git clone -b ${VLLM_PUBLIC_BRANCH} https://github.com/aws-neuron/upstreaming-to-vllm.git /opt/vllm
+RUN git clone -b ${VLLM_PUBLIC_BRANCH} https://github.com/vllm-project/vllm-neuron.git /opt/vllm
 
 RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
  && ${PIP} install --no-cache-dir \
@@ -238,10 +231,6 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
    neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
    neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
- && VLLM_TARGET_DEVICE="neuron" ${PIP} install --no-cache-dir \
-   --index-url ${PIP_REPO_URL} \
-   --trusted-host ${NEURON_PIP_REPO} \
-   --extra-index-url ${PYPI_SIMPLE_URL} \
    -e /opt/vllm \
  && rm -rf ~/.cache/pip/*
 
