@@ -165,7 +165,7 @@ ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.7.14366+9adb71b8
 
 # vLLM branch names
 ARG VLLM_PRIVATE_BRANCH=neuron-release-2.27
-ARG VLLM_PUBLIC_BRANCH=0.2.1-lts
+ARG VLLM_PUBLIC_BRANCH=0.2.1+lts
 
 FROM base AS vllm-clone
 
@@ -219,7 +219,7 @@ RUN apt-get update \
  && apt-get clean
 
 # Clone VLLM source before pip installations
-RUN git clone -b ${VLLM_PUBLIC_BRANCH} https://github.com/vllm-project/vllm-neuron.git /opt/vllm
+RUN git clone -b "${VLLM_PUBLIC_BRANCH}" https://github.com/vllm-project/vllm-neuron.git /opt/vllm
 
 RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
  && ${PIP} install --no-cache-dir \
