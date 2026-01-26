@@ -1,0 +1,246 @@
+ARG BUILD_STAGE=prod
+
+FROM public.ecr.aws/docker/library/ubuntu:24.04 AS base
+
+LABEL dlc_major_version="1"
+LABEL maintainer="Amazon AI"
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG PIP=pip3
+ARG PYTHON=python3.12
+ARG PYTHON_VERSION=3.12.11
+ARG TORCHSERVE_VERSION=0.11.0
+ARG PYPI_SIMPLE_URL="https://pypi.org/simple/"
+
+
+# See http://bugs.python.org/issue19846
+ENV LANG=C.UTF-8
+ENV LD_LIBRARY_PATH=/opt/aws/neuron/lib:/lib/x86_64-linux-gnu:/opt/conda/lib/:$LD_LIBRARY_PATH
+ENV PATH=/opt/conda/bin:/opt/aws/neuron/bin:$PATH
+
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y --no-install-recommends \
+    apt-transport-https \
+    build-essential \
+    ca-certificates \
+    cmake \
+    curl \
+    emacs \
+    ffmpeg \
+    gcc \
+    git \
+    gnupg2 \
+    gpg-agent \
+    jq \
+    libgl1 \
+    libgl1-mesa-dri \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libcap-dev \
+    libhwloc-dev \
+    openssh-client \
+    openjdk-11-jdk \
+    unzip \
+    vim \
+    wget \
+    zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+
+# https://github.com/docker-library/openjdk/issues/261 https://github.com/docker-library/openjdk/pull/263/files
+RUN keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt; \
+    mv /etc/ssl/certs/java/cacerts.jks /etc/ssl/certs/java/cacerts; \
+    /var/lib/dpkg/info/ca-certificates-java.postinst configure;
+
+RUN curl -L -o ~/miniforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh \
+ && chmod +x ~/miniforge.sh \
+ && ~/miniforge.sh -b -p /opt/conda \
+ && rm ~/miniforge.sh \
+ && /opt/conda/bin/conda update -y conda \
+ && /opt/conda/bin/mamba install -c conda-forge -y \
+    python=$PYTHON_VERSION \
+    pyopenssl \
+    cython \
+    mkl-include \
+    mkl \
+    parso \
+    typing \
+    # Below 2 are included in miniconda base, but not mamba so need to install
+    conda-content-trust \
+    charset-normalizer \
+ && /opt/conda/bin/conda clean -ya
+
+RUN /opt/conda/bin/mamba install -c conda-forge \
+    python=$PYTHON_VERSION \
+    scikit-learn \
+    h5py \
+    requests \
+ && conda clean -ya \
+ && pip install --upgrade pip \
+    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+ && ln -s /opt/conda/bin/pip /usr/local/bin/pip3 \
+ && pip install \
+    enum-compat \
+    ipython \
+ && rm -rf ~/.cache/pip/*
+
+# Install EFA
+RUN apt-get update \
+ && cd $HOME \
+ && curl -O https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz \
+ && wget https://efa-installer.amazonaws.com/aws-efa-installer.key && gpg --import aws-efa-installer.key \
+ && cat aws-efa-installer.key | gpg --fingerprint \
+ && wget https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz.sig && gpg --verify ./aws-efa-installer-latest.tar.gz.sig \
+ && tar -xf aws-efa-installer-latest.tar.gz \
+ && cd aws-efa-installer \
+ && ./efa_installer.sh -y -g --skip-kmod --skip-limit-conf --no-verify \
+ && cd $HOME \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+COPY --chmod=755 vllm_entrypoint.py neuron-monitor.sh deep_learning_container.py /usr/local/bin/
+
+### Mount Point ###
+# When launching the container, mount the code directory to /workspace
+ARG APP_MOUNT=/workspace
+VOLUME [ ${APP_MOUNT} ]
+WORKDIR ${APP_MOUNT}/vllm
+
+RUN ${PIP} install --no-cache-dir -U \
+    "opencv-python" \
+    "awscli" \
+    "pandas" \
+    "boto3" \
+    "cryptography" \
+    "pytest" \
+    "wheel" \
+    "cmake>=3.26" \
+    "setuptools-scm>=8" \
+    "jinja2" \
+    torchserve==${TORCHSERVE_VERSION} \
+    torch-model-archiver==${TORCHSERVE_VERSION} \
+ && rm -rf ~/.cache/pip/*
+
+RUN useradd -m model-server \
+ && mkdir -p /home/model-server/tmp /opt/ml/model \
+ && chown -R model-server /home/model-server /opt/ml/model
+COPY config.properties /home/model-server
+
+# Compliance 
+RUN HOME_DIR=/root \
+ && curl -o ${HOME_DIR}/oss_compliance.zip https://aws-dlinfra-utilities.s3.amazonaws.com/oss_compliance.zip \
+ && unzip ${HOME_DIR}/oss_compliance.zip -d ${HOME_DIR}/ \
+ && cp ${HOME_DIR}/oss_compliance/test/testOSSCompliance /usr/local/bin/testOSSCompliance \
+ && chmod +x /usr/local/bin/testOSSCompliance \
+ && chmod +x ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh \
+ && ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh ${HOME_DIR} ${PYTHON} \
+ && rm -rf ${HOME_DIR}/oss_compliance* \
+ # conda leaves an empty /root/.cache/conda/notices.cache file which is not removed by conda clean -ya
+ && rm -rf ${HOME_DIR}/.cache/conda
+
+# Setting up APT and PIP repo for neuron artifacts
+ARG NEURON_APT_REPO=apt.repos.neuron.amazonaws.com
+ARG NEURON_APT_REPO_KEY
+ARG NEURON_PIP_REPO=pip.repos.neuron.amazonaws.com
+ARG NEURON_PIP_REPO_KEY
+RUN mkdir -p /etc/apt/keyrings \
+ && APT_REPO_PREFIX=$([ -n "${NEURON_APT_REPO_KEY}" ] && echo "${NEURON_APT_REPO_KEY}@" || echo "") \
+ && echo "deb [signed-by=/etc/apt/keyrings/neuron.gpg] https://${APT_REPO_PREFIX}${NEURON_APT_REPO} jammy main" > /etc/apt/sources.list.d/neuron.list \
+ && curl $([ -n "${NEURON_APT_REPO_KEY}" ] && echo "-u ${NEURON_APT_REPO_KEY}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
+
+# Neuron SDK components version numbers
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.29.41.0-681fef5f5
+ARG NEURONX_RUNTIME_LIB_VERSION=2.29.40.0-f954cd7a5
+ARG NEURONX_TOOLS_VERSION=2.27.33.0-5d9c0b901
+
+ARG NEURONX_CC_VERSION=2.22.12471.0+b4a00d10
+ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.11.19912+e48cd891
+ARG NEURONX_DISTRIBUTED_VERSION=0.16.25997+f431c02e
+ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.7.15063+bafa28d5
+ARG NKI_VERSION=0.1.0+g432b459e
+
+# vLLM branch names
+ARG VLLM_PRIVATE_BRANCH=release-0.3.0
+ARG VLLM_PUBLIC_BRANCH=release-0.3.0
+
+FROM base AS vllm-clone
+
+RUN mkdir -p /root/.ssh && \
+    echo "StrictHostKeyChecking no" >> /root/.ssh/config && \
+    ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
+
+WORKDIR /vllm
+
+RUN --mount=type=secret,id=ssh_key,target=/root/.ssh/id_ed25519,mode=0600 \
+    git clone -b ${VLLM_PRIVATE_BRANCH} git@github.com:aws-neuron/private-vllm-neuron.git .
+
+FROM base AS repo
+
+
+# Install Neuron components from the apt and pip repos (latest versions)
+RUN apt-get update \
+ && apt-get install -y \
+   aws-neuronx-tools \
+   aws-neuronx-collectives \
+   aws-neuronx-runtime-lib \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+# Install VLLM from source
+COPY --from=vllm-clone /vllm /opt/vllm
+
+RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
+ && ${PIP} install --no-cache-dir \
+   --index-url ${PIP_REPO_URL} \
+   --trusted-host ${NEURON_PIP_REPO} \
+   --extra-index-url ${PYPI_SIMPLE_URL} \
+   "neuronx-cc>=2.0" \
+   "torch-neuronx==2.9.*" \
+   neuronx_distributed \
+   neuronx_distributed_inference \
+   nki \
+   -e /opt/vllm \
+ && rm -rf ~/.cache/pip/*
+
+FROM base AS prod
+
+# Install Neuron components with specific versions
+RUN apt-get update \
+ && apt-get install -y \
+   aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
+   aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
+   aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+# Clone VLLM source before pip installations
+RUN git clone -b "${VLLM_PUBLIC_BRANCH}" https://github.com/vllm-project/vllm-neuron.git /opt/vllm
+
+RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
+ && ${PIP} install --no-cache-dir \
+   --index-url ${PIP_REPO_URL} \
+   --trusted-host ${NEURON_PIP_REPO} \
+   --extra-index-url ${PYPI_SIMPLE_URL} \
+   neuronx-cc==$NEURONX_CC_VERSION \
+   torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
+   neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
+   neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
+   nki==$NKI_VERSION \
+   -e /opt/vllm \
+ && rm -rf ~/.cache/pip/*
+
+FROM ${BUILD_STAGE} AS final
+
+EXPOSE 8080 8081
+
+ENTRYPOINT ["python", "/usr/local/bin/vllm_entrypoint.py"]
+CMD ["/bin/bash"]
+HEALTHCHECK CMD curl --fail http://localhost:8080/ping || exit 1
