@@ -106,6 +106,7 @@ RUN wget -q https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VER
     pip \
     requests \
     setuptools \
+    uv \
  && rm -rf ~/.cache/pip/*
 
 # U24 will not allow installation of pip packages outside of venv without this flag
@@ -168,8 +169,10 @@ RUN mkdir -p /etc/apt/keyrings \
 ARG NEURONX_RUNTIME_LIB_VERSION=2.29.40.0-f954cd7a5
 ARG NEURONX_COLLECTIVES_LIB_VERSION=2.29.41.0-681fef5f5
 ARG NEURONX_TOOLS_VERSION=2.27.33.0-5d9c0b901
+
 ARG NEURONX_CC_VERSION=2.22.12471.0+b4a00d10
 ARG NEURONX_JAX_TRAINING_VERSION=0.7.0.1.0.7377+5e6a4049
+ARG NKI_VERSION=0.1.0+g432b459e
 
 FROM base AS repo
 
@@ -190,6 +193,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    --trusted-host ${NEURON_PIP_REPO} \
    "neuronx-cc>=2.0" \
    jax-neuronx \
+   "nki==0.1.0+g7eca0d23" \
  && rm -rf ~/.cache/pip/*
 
 FROM base AS prod
@@ -213,6 +217,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    --extra-index-url ${PYPI_SIMPLE_URL} \
    neuronx-cc==$NEURONX_CC_VERSION \
    jax-neuronx==$NEURONX_JAX_TRAINING_VERSION \
+   nki==$NKI_VERSION \
  && rm -rf ~/.cache/pip/*
 
 FROM ${BUILD_STAGE} AS final

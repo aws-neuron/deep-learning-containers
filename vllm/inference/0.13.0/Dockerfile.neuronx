@@ -123,6 +123,7 @@ RUN ${PIP} install --no-cache-dir -U \
     "cmake>=3.26" \
     "setuptools-scm>=8" \
     "jinja2" \
+    uv \
     torchserve==${TORCHSERVE_VERSION} \
     torch-model-archiver==${TORCHSERVE_VERSION} \
  && rm -rf ~/.cache/pip/*
@@ -165,20 +166,18 @@ ARG NEURONX_DISTRIBUTED_VERSION=0.16.25997+f431c02e
 ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.7.15063+bafa28d5
 ARG NKI_VERSION=0.1.0+g432b459e
 
-# vLLM branch names
-ARG VLLM_PRIVATE_BRANCH=release-0.3.0
-ARG VLLM_PUBLIC_BRANCH=release-0.3.0
+# GitHub repository and branch
+ARG GITHUB_REPO=https://github.com/vllm-project/vllm-neuron.git
+ARG GITHUB_REPO_BRANCH=release-0.2.3+lts
 
-FROM base AS vllm-clone
+# Configure SSH access
+RUN mkdir -p /root/.ssh \
+ && echo "StrictHostKeyChecking no" >> /root/.ssh/config \
+ && ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
 
-RUN mkdir -p /root/.ssh && \
-    echo "StrictHostKeyChecking no" >> /root/.ssh/config && \
-    ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
-
-WORKDIR /vllm
-
-RUN --mount=type=secret,id=ssh_key,target=/root/.ssh/id_ed25519,mode=0600 \
-    git clone -b ${VLLM_PRIVATE_BRANCH} git@github.com:aws-neuron/private-vllm-neuron.git .
+# Clone vllm-neuronx repository
+RUN --mount=type=secret,id=containers_github_ssh_key,target=/root/.ssh/id_ed25519,mode=0600 \
+    git clone -b ${GITHUB_REPO_BRANCH} ${GITHUB_REPO} /opt/vllm
 
 FROM base AS repo
 
@@ -193,9 +192,6 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-# Install VLLM from source
-COPY --from=vllm-clone /vllm /opt/vllm
-
 RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
  && ${PIP} install --no-cache-dir \
    --index-url ${PIP_REPO_URL} \
@@ -205,7 +201,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    "torch-neuronx==2.9.*" \
    neuronx_distributed \
    neuronx_distributed_inference \
-   nki \
+   "nki==0.1.0+g7eca0d23" \
    -e /opt/vllm \
  && rm -rf ~/.cache/pip/*
 
@@ -220,9 +216,6 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
  && apt-get clean
-
-# Clone VLLM source before pip installations
-RUN git clone -b "${VLLM_PUBLIC_BRANCH}" https://github.com/vllm-project/vllm-neuron.git /opt/vllm
 
 RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
  && ${PIP} install --no-cache-dir \

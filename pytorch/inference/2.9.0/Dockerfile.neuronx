@@ -125,6 +125,7 @@ RUN ${PIP} install --upgrade pip --trusted-host pypi.org --trusted-host files.py
     "awscli<2" \
     pandas \
     boto3 \
+    uv \
     cryptography \
     "protobuf>=3.18.3,<4" \
     torchserve==${TORCHSERVE_VERSION} \
@@ -183,6 +184,7 @@ ARG NEURONX_CC_VERSION=2.22.12471.0+b4a00d10
 ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.11.19912+e48cd891
 ARG NEURONX_DISTRIBUTED_VERSION=0.16.25997+f431c02e
 ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.7.15063+bafa28d5
+ARG NKI_VERSION=0.1.0+g432b459e
 
 FROM base AS repo
 
@@ -205,6 +207,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    "torch-neuronx==2.9.*" \
    neuronx_distributed \
    neuronx_distributed_inference \
+   "nki==0.1.0+g7eca0d23" \
  && rm -rf ~/.cache/pip/*
 
 FROM base AS prod
@@ -228,6 +231,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
    neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
    neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
+   nki==$NKI_VERSION \
  && rm -rf ~/.cache/pip/*
 
 FROM ${BUILD_STAGE} AS final
