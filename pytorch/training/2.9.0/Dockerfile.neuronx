@@ -117,15 +117,19 @@ ENV PATH="$PATH:/home/.openmpi/bin"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/.openmpi/lib/"
 RUN ompi_info --parsable --all | grep mpi_built_with_cuda_support:value
 
+# Install AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+ && unzip awscliv2.zip \
+ && ./aws/install \
+ && rm -rf awscliv2.zip aws
+
 RUN ${PIP} install --no-cache-dir -U \
-    "bokeh>=2.3,<3" \
-    "awscli<2" \
     scipy \
     click \
-    "cryptography" \
+    cryptography \
     "sagemaker>=2,<3" \
-    "sagemaker-pytorch-training" \
-    psutil==5.6.7 \
+    sagemaker-pytorch-training \
+    psutil \
     dataset \
     Pillow \
     uv \
@@ -136,26 +140,17 @@ RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pk
 # Copy the NxDT Installation files
 COPY --chmod=755 apex_setup.py nxdt_install_setup.sh nxdt_requirements.txt /root/
 
-# attrs, neuronx-cc required: >=19.2.0, sagemaker <24,>=23.1.0
-# protobuf neuronx-cc<4, sagemaker-training >=3.9.2,<=3.20.3
-# awscli 1.25.47 has requirement docutils<0.17,>=0.10
-# etcd for kubernetes installation
-# awscli 1.27.127 has requirement rsa<4.8,>=3.1.2, but you have rsa 4.9.
-# awscli 1.27.127 requires urllib3 < 1.27, python-etcd requires urllib3 >= 1.7, latest urllib3 release is 2.0.2
 RUN ${PIP} install --no-cache-dir -U \
-    "attrs<24,>=23.1.0" \
-    "docutils>=0.10,<0.17" \
-    "rsa<4.8,>=3.1.2" \
-    "python-etcd" \
-    "urllib3>=1.26.0,<1.27" \
+    attrs \
+    python-etcd \
  # Install extra packages needed by sagemaker (for passing test_utility_packages_using_import)
  && ${PIP} install --no-cache-dir -U \
-    "bokeh>=3.0.1,<4" \
-    "imageio>=2.22,<3" \
-    "opencv-python>=4.8.1.78" \
-    "plotly>=5.11,<6" \
-    "seaborn>=0.12,<1" \
-    "shap>=0.41,<1" \
+    bokeh \
+    imageio \
+    opencv-python \
+    plotly \
+    seaborn \
+    shap \
  && rm -rf ~/.cache/pip/*
 
 # EFA Installer does apt get. Make sure to run apt update before that
@@ -177,7 +172,7 @@ RUN apt-get update \
 # Needed for running bert training scripts
 RUN pip3 install --no-cache-dir -U \
     graphviz \
-    tensorboard==2.6 \
+    tensorboard \
     accelerate \
  # Install NxDT dependencies
  && ${PIP} install --no-cache-dir \
@@ -212,13 +207,13 @@ RUN mkdir -p /etc/apt/keyrings \
  && curl $([ -n "${NEURON_APT_REPO_KEY}" ] && echo "-u ${NEURON_APT_REPO_KEY}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
 
 # Neuron SDK components
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.30.59.0-f5cdefb39
-ARG NEURONX_RUNTIME_LIB_VERSION=2.30.51.0-faafe26f0
-ARG NEURONX_TOOLS_VERSION=2.28.23.0-f1c114a9d
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.31.24.0-1a31ba186
+ARG NEURONX_RUNTIME_LIB_VERSION=2.31.24.0-0b044f4ce
+ARG NEURONX_TOOLS_VERSION=2.29.18.0-d5fe7ba42
 
-ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.12.22436+0f1dac25
-ARG NEURONX_CC_VERSION=2.23.6484.0+3b612583
-ARG NEURONX_DISTRIBUTED_VERSION=0.17.26814+4b18de63
+ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.13.24727+8e870898
+ARG NEURONX_CC_VERSION=2.24.5133.0+58f8de22
+ARG NEURONX_DISTRIBUTED_VERSION=0.18.27753+1cafd54f
 ARG NEURONX_DISTRIBUTED_TRAINING_VERSION=1.7.0
 ARG NKI_VERSION=0.2.0+g82fdb402
 
@@ -239,11 +234,18 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    --index-url ${PIP_REPO_URL} \
    --trusted-host ${NEURON_PIP_REPO} \
    --extra-index-url ${PYPI_SIMPLE_URL} \
-   "torch-neuronx==2.9.*" \
-   "neuronx-cc>=2.0" \
+   torch-neuronx \
+   neuronx-cc \
    neuronx_distributed \
-   neuronx_distributed_training \
    nki \
+ && rm -rf ~/.cache/pip/*
+
+# Always install neuronx_distributed_training from the prod repo
+RUN ${PIP} install --no-cache-dir \
+   --index-url https://pip.repos.neuron.amazonaws.com \
+   --trusted-host pip.repos.neuron.amazonaws.com \
+   --extra-index-url ${PYPI_SIMPLE_URL} \
+   neuronx_distributed_training \
  && rm -rf ~/.cache/pip/*
 
 FROM base AS prod
@@ -266,15 +268,29 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    torch-neuronx==$NEURONX_FRAMEWORK_VERSION \
    neuronx-cc==$NEURONX_CC_VERSION \
    neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
-   neuronx_distributed_training==$NEURONX_DISTRIBUTED_TRAINING_VERSION \
    nki==$NKI_VERSION \
+ && rm -rf ~/.cache/pip/*
+
+# Always install neuronx_distributed_training from the prod repo
+RUN ${PIP} install --no-cache-dir \
+   --index-url https://pip.repos.neuron.amazonaws.com \
+   --trusted-host pip.repos.neuron.amazonaws.com \
+   --extra-index-url ${PYPI_SIMPLE_URL} \
+   neuronx_distributed_training==$NEURONX_DISTRIBUTED_TRAINING_VERSION \
  && rm -rf ~/.cache/pip/*
 
 FROM ${BUILD_STAGE} AS final
 
+# Upgrade OS packages to latest versions
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt-get clean
+
 ## Installation for Neuronx Distributed Training framework
 # Clone and build Apex
-RUN git clone https://github.com/NVIDIA/apex.git /root/apex \
+RUN --mount=type=cache,target=/root/.cache/bazel \
+    git clone https://github.com/NVIDIA/apex.git /root/apex \
  && cd /root/apex \
  && git checkout 25.07 \
  && cp /root/apex_setup.py setup.py \
@@ -282,7 +298,7 @@ RUN git clone https://github.com/NVIDIA/apex.git /root/apex \
  && ${PIP} install --no-cache-dir --no-build-isolation -r /root/nxdt_requirements.txt /root/apex \
  && /root/nxdt_install_setup.sh \
  && ${PIP} install --force-reinstall \
-   "torch==2.9.0" \
+   "torch==2.9.*" \
    torchvision \
  && rm -rf ~/.cache/pip/*
 
