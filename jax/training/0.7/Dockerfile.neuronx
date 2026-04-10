@@ -102,12 +102,17 @@ RUN wget -q https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VER
  && ln -s /usr/local/bin/pip3 /usr/bin/pip \
  && ln -s /usr/local/bin/$PYTHON /usr/local/bin/python \
  && ${PIP} --no-cache-dir install --upgrade \
-    "awscli<2" \
     pip \
     requests \
     setuptools \
     uv \
  && rm -rf ~/.cache/pip/*
+
+# Install AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+ && unzip awscliv2.zip \
+ && ./aws/install \
+ && rm -rf awscliv2.zip aws
 
 # U24 will not allow installation of pip packages outside of venv without this flag
 # This is because U24 ships with Python 3.12 by default and installation into the Python
@@ -166,13 +171,13 @@ RUN mkdir -p /etc/apt/keyrings \
  && curl $([ -n "${NEURON_APT_REPO_KEY}" ] && echo "-u ${NEURON_APT_REPO_KEY}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
 
 # Neuron SDK components version numbers
-ARG NEURONX_RUNTIME_LIB_VERSION=2.30.51.0-faafe26f0
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.30.59.0-f5cdefb39
-ARG NEURONX_TOOLS_VERSION=2.28.23.0-f1c114a9d
+ARG NEURONX_RUNTIME_LIB_VERSION=2.31.24.0-0b044f4ce
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.31.24.0-1a31ba186
+ARG NEURONX_TOOLS_VERSION=2.29.18.0-d5fe7ba42
 
-ARG NEURONX_CC_VERSION=2.23.6484.0+3b612583
-ARG NEURONX_JAX_TRAINING_VERSION=0.7.0.1.0.7584+5c8f4c3c
-ARG NKI_VERSION=0.2.0+g82fdb402
+ARG NEURONX_CC_VERSION=2.24.5133.0+58f8de22
+ARG NEURONX_JAX_TRAINING_VERSION=0.7.0.1.0.8181+1e892be0
+ARG NKI_VERSION=0.3.0+23928721754.g18aa1271
 
 FROM base AS repo
 
@@ -191,7 +196,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    --index-url ${PIP_REPO_URL} \
    --extra-index-url ${PYPI_SIMPLE_URL} \
    --trusted-host ${NEURON_PIP_REPO} \
-   "neuronx-cc>=2.0" \
+   neuronx-cc \
    jax-neuronx \
    nki \
  && rm -rf ~/.cache/pip/*
@@ -221,6 +226,12 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
  && rm -rf ~/.cache/pip/*
 
 FROM ${BUILD_STAGE} AS final
+
+# Upgrade OS packages to latest versions
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt-get clean
 
 # Starts framework
 ENTRYPOINT ["bash", "-m", "start_with_right_hostname.sh"]
