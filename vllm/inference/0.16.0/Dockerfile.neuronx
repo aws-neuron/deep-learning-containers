@@ -61,7 +61,6 @@ RUN curl -L -o ~/miniforge.sh https://github.com/conda-forge/miniforge/releases/
  && chmod +x ~/miniforge.sh \
  && ~/miniforge.sh -b -p /opt/conda \
  && rm ~/miniforge.sh \
- && /opt/conda/bin/conda update -y conda \
  && /opt/conda/bin/mamba install -c conda-forge -y \
     python=$PYTHON_VERSION \
     pyopenssl \
@@ -69,7 +68,6 @@ RUN curl -L -o ~/miniforge.sh https://github.com/conda-forge/miniforge/releases/
     mkl-include \
     mkl \
     parso \
-    typing \
     # Below 2 are included in miniconda base, but not mamba so need to install
     conda-content-trust \
     charset-normalizer \
@@ -159,19 +157,20 @@ RUN mkdir -p /etc/apt/keyrings \
  && curl $([ -n "${NEURON_APT_REPO_KEY}" ] && echo "-u ${NEURON_APT_REPO_KEY}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
 
 # Neuron SDK components version numbers
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.31.24.0-1a31ba186
-ARG NEURONX_RUNTIME_LIB_VERSION=2.31.24.0-0b044f4ce
-ARG NEURONX_TOOLS_VERSION=2.29.22.0-b486b0ade
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.32.28.0-452cba8de
+ARG NEURONX_RUNTIME_LIB_VERSION=2.32.31.0-0234f5ed2
+ARG NEURONX_TOOLS_VERSION=2.30.10.0-39feaa591
 
-ARG NEURONX_CC_VERSION=2.24.8799.0+6f62ff7c
-ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.13.26312+8e870898
-ARG NEURONX_DISTRIBUTED_VERSION=0.18.27753+1cafd54f
-ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.9.17334+ced6ae4e
-ARG NKI_VERSION=0.3.0+23928721754.g18aa1271
+ARG NEURONX_CC_VERSION=2.25.3371.0+f524f7f8
+ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.14.27725+e2ff0410
+ARG NEURONX_DISTRIBUTED_VERSION=0.19.28093+fc70b593
+ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.10.17970+8548ba25
+ARG NKI_VERSION=0.4.0+25940409122.gd30719f9
+ARG NEURON_AGENTIC_DEVELOPMENT_VERSION=1.1
 
 # GitHub repository and branch
 ARG GITHUB_REPO=https://github.com/vllm-project/vllm-neuron.git
-ARG GITHUB_REPO_BRANCH=release-0.5.0
+ARG GITHUB_REPO_BRANCH=release-0.5.1
 
 # Configure SSH access
 RUN mkdir -p /root/.ssh \
@@ -205,6 +204,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    neuronx_distributed \
    neuronx_distributed_inference \
    nki \
+   neuron_agentic_development \
    -e /opt/vllm \
  && rm -rf ~/.cache/pip/*
 
@@ -230,6 +230,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    neuronx_distributed==$NEURONX_DISTRIBUTED_VERSION \
    neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
    nki==$NKI_VERSION \
+   neuron_agentic_development==$NEURON_AGENTIC_DEVELOPMENT_VERSION \
    -e /opt/vllm \
  && rm -rf ~/.cache/pip/*
 
