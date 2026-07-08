@@ -157,20 +157,20 @@ RUN mkdir -p /etc/apt/keyrings \
  && curl $([ -n "${NEURON_APT_REPO_KEY}" ] && echo "-u ${NEURON_APT_REPO_KEY}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
 
 # Neuron SDK components version numbers
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.32.28.0-452cba8de
-ARG NEURONX_RUNTIME_LIB_VERSION=2.32.31.0-0234f5ed2
-ARG NEURONX_TOOLS_VERSION=2.30.10.0-39feaa591
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.33.10.0-068180c7a
+ARG NEURONX_RUNTIME_LIB_VERSION=2.33.10.0-3dcef56f0
+ARG NEURONX_TOOLS_VERSION=2.31.13.0-a9e473f33
 
-ARG NEURONX_CC_VERSION=2.25.3371.0+f524f7f8
-ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.14.27725+e2ff0410
-ARG NEURONX_DISTRIBUTED_VERSION=0.19.28093+fc70b593
-ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.10.17970+8548ba25
-ARG NKI_VERSION=0.4.0+25940409122.gd30719f9
-ARG NEURON_AGENTIC_DEVELOPMENT_VERSION=1.1
+ARG NEURONX_CC_VERSION=2.26.6360.0+6f180f47
+ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.15.32035+de43f57c
+ARG NEURONX_DISTRIBUTED_VERSION=0.19.28492+435aae2b
+ARG NEURONX_DISTRIBUTED_INFERENCE_VERSION=0.10.18399+ed62453e
+ARG NKI_VERSION=0.5.0+28631259367.ga768afa6
+ARG NEURON_AGENTIC_DEVELOPMENT_VERSION=1.2
 
 # GitHub repository and branch
 ARG GITHUB_REPO=https://github.com/vllm-project/vllm-neuron.git
-ARG GITHUB_REPO_BRANCH=release-0.5.1
+ARG GITHUB_REPO_BRANCH=release-0.5.2
 
 # Configure SSH access
 RUN mkdir -p /root/.ssh \
@@ -205,7 +205,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    neuronx_distributed_inference \
    nki \
    neuron_agentic_development \
-   -e /opt/vllm \
+   /opt/vllm \
  && rm -rf ~/.cache/pip/*
 
 FROM base AS prod
@@ -231,7 +231,7 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
    neuronx_distributed_inference==$NEURONX_DISTRIBUTED_INFERENCE_VERSION \
    nki==$NKI_VERSION \
    neuron_agentic_development==$NEURON_AGENTIC_DEVELOPMENT_VERSION \
-   -e /opt/vllm \
+   /opt/vllm \
  && rm -rf ~/.cache/pip/*
 
 FROM ${BUILD_STAGE} AS final
