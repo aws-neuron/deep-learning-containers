@@ -170,7 +170,7 @@ ARG NEURON_AGENTIC_DEVELOPMENT_VERSION=1.2
 
 # GitHub repository and branch
 ARG GITHUB_REPO=https://github.com/vllm-project/vllm-neuron.git
-ARG GITHUB_REPO_BRANCH=release-0.5.2
+ARG GITHUB_REPO_BRANCH=release-0.5.3
 
 # Configure SSH access
 RUN mkdir -p /root/.ssh \
