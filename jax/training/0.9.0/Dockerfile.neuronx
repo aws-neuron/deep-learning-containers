@@ -26,6 +26,7 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib64"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/openmpi/lib64"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
 ENV PATH="/opt/aws/neuron/bin:${PATH}"
+ENV PATH="${PATH}:/opt/amazon/efa/bin"
 
 RUN apt-get update \
  && apt-get upgrade -y \
@@ -173,7 +174,7 @@ RUN mkdir -p /etc/apt/keyrings \
 # Neuron SDK components version numbers
 ARG NEURONX_RUNTIME_LIB_VERSION=2.33.10.0-3dcef56f0
 ARG NEURONX_COLLECTIVES_LIB_VERSION=2.33.10.0-068180c7a
-ARG NEURONX_TOOLS_VERSION=2.31.13.0-a9e473f33
+ARG NEURONX_TOOLS_VERSION=2.31.15.0-5c7949a6a
 
 ARG NEURONX_CC_VERSION=2.26.6360.0+6f180f47
 ARG NEURONX_JAX_TRAINING_VERSION=0.10.0.1.0.10466+f1172f09

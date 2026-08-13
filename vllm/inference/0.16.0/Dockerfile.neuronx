@@ -17,6 +17,7 @@ ARG PYPI_SIMPLE_URL="https://pypi.org/simple/"
 ENV LANG=C.UTF-8
 ENV LD_LIBRARY_PATH=/opt/aws/neuron/lib:/lib/x86_64-linux-gnu:/opt/conda/lib/:$LD_LIBRARY_PATH
 ENV PATH=/opt/conda/bin:/opt/aws/neuron/bin:$PATH
+ENV PATH="${PATH}:/opt/amazon/efa/bin"
 
 RUN apt-get update \
  && apt-get upgrade -y \
@@ -159,7 +160,7 @@ RUN mkdir -p /etc/apt/keyrings \
 # Neuron SDK components version numbers
 ARG NEURONX_COLLECTIVES_LIB_VERSION=2.33.10.0-068180c7a
 ARG NEURONX_RUNTIME_LIB_VERSION=2.33.10.0-3dcef56f0
-ARG NEURONX_TOOLS_VERSION=2.31.13.0-a9e473f33
+ARG NEURONX_TOOLS_VERSION=2.31.15.0-5c7949a6a
 
 ARG NEURONX_CC_VERSION=2.26.6360.0+6f180f47
 ARG NEURONX_FRAMEWORK_VERSION=2.9.0.2.15.32035+de43f57c
