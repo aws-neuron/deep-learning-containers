@@ -1,0 +1,26 @@
+#!/bin/bash
+# SageMaker hosting entrypoint for the vLLM Neuron DLC.
+#
+# SageMaker launches an inference container as `docker run <image> serve`. This image's
+# ENTRYPOINT (common/vllm_entrypoint.py) execs argv as-is, so exposing an executable
+# named `serve` on PATH satisfies SageMaker without changing the ENTRYPOINT, keeping the
+# existing EC2/k8s usage (`docker run <image> vllm serve ...`) working unchanged.
+#
+# Adapted from aws/deep-learning-containers scripts/docker/vllm/sagemaker_entrypoint.sh
+# (Apache-2.0). vLLM >= 0.24 already registers /ping and /invocations via
+# vllm.entrypoints.serve.sagemaker.api_router, so no routing middleware is needed here.
+set -euo pipefail
+
+ARGS_FILE=$(mktemp)
+trap 'rm -f "${ARGS_FILE}"' EXIT
+if ! python3 /usr/local/bin/sagemaker_args.py >"${ARGS_FILE}"; then
+    echo "ERROR: failed to build vLLM arguments from SM_VLLM_* environment variables" >&2
+    exit 1
+fi
+
+ARGS=()
+while IFS= read -r -d '' token; do
+    ARGS+=("${token}")
+done <"${ARGS_FILE}"
+
+exec standard-supervisor python3 -m vllm.entrypoints.openai.api_server "${ARGS[@]}"
