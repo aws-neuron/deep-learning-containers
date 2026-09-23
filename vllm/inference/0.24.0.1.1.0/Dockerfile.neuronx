@@ -119,6 +119,12 @@ RUN printf '%s\n' \
 
 COPY --chmod=755 vllm_entrypoint.py neuron-monitor.sh deep_learning_container.py /usr/local/bin/
 
+# SageMaker hosting support. SageMaker launches an inference container as
+# `docker run <image> serve`, so exposing an executable named `serve` on PATH lets the
+# existing ENTRYPOINT (vllm_entrypoint.py, which execs its argv) start the vLLM server.
+COPY --chmod=755 serve /usr/local/bin/serve
+COPY --chmod=755 sagemaker_args.py /usr/local/bin/sagemaker_args.py
+
 ### Mount Point ###
 # When launching the container, mount the code directory to /workspace
 ARG APP_MOUNT=/workspace
