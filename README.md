@@ -104,6 +104,12 @@ For detailed customization examples and best practices, refer to the [Neuron DLC
 | [VLLM 0.9](https://github.com/aws-neuron/deep-learning-containers/blob/2.25.0/docker/vllm/inference/0.9.1/Dockerfile.neuronx) | vllm-neuronx, libneuronxla, neuronx_distributed, neuronx_distributed_inference, torch-neuronx, aws-neuronx-tools | Neuron 2.25.0      | trn1,trn2,inf2                        | 3.10 (py310)           | public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.9.1-neuronx-py310-sdk2.25.0-ubuntu22.04 |
 | [VLLM 0.7](https://github.com/aws-neuron/deep-learning-containers/blob/2.24.1/docker/vllm/inference/0.7.2/Dockerfile.neuronx) | vllm-neuronx, libneuronxla, neuronx_distributed, neuronx_distributed_inference, torch-neuronx, aws-neuronx-tools | Neuron 2.24.1      | trn1,trn2,inf2                        | 3.10 (py310)           | public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.7.2-neuronx-py310-sdk2.24.1-ubuntu22.04 |
 
+### vllm-omni-inference-neuronx
+
+| Framework | Neuron Packages | Neuron SDK Version | Supported EC2 Instance Types | Python Version Options | ECR Public URL |
+|-----------|-----------------|--------------------|------------------------------|------------------------|----------------|
+| [VLLM-Omni 0.24.0.1.1.0](https://github.com/aws-neuron/deep-learning-containers/blob/2.32.0/vllm-omni/inference/0.24.0.1.1.0/Dockerfile.neuronx) | vllm-omni-neuron, vllm-neuron, libtorch-neuronx-lite, aws-neuronx-tools, nki, neuron_agentic_development | Neuron 2.32.0 | trn2,trn3 | 3.13 (py313) | public.ecr.aws/neuron/pytorch-inference-vllm-omni-neuronx:0.24.0.1.1.0-neuronx-py313-sdk2.32.0-ubuntu24.04 |
+
 ## Security
 
 See [SECURITY](SECURITY.md) for more information.
