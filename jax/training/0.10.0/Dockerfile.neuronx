@@ -1,14 +1,14 @@
 ARG BUILD_STAGE=prod
 
-FROM public.ecr.aws/docker/library/ubuntu:24.04 AS base
+FROM public.ecr.aws/docker/library/ubuntu:26.04 AS base
 
 LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
 
-# This arg required to stop docker build waiting for region configuration while installing tz data from ubuntu 24
+# Keep apt non-interactive so tzdata's timezone/region prompt can't stall the build
 ARG DEBIAN_FRONTEND=noninteractive
-ARG PYTHON=python3.13
-ARG PYTHON_VERSION=3.13.13
+ARG PYTHON=python3.14
+ARG PYTHON_VERSION=3.14.7
 ARG PIP=pip3
 ARG OMPI_VERSION=4.1.5
 ARG PYPI_SIMPLE_URL="https://pypi.org/simple/"
@@ -112,9 +112,9 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
  && ./aws/install \
  && rm -rf awscliv2.zip aws
 
-# U24 will not allow installation of pip packages outside of venv without this flag
-# This is because U24 ships with Python 3.12 by default and installation into the Python
-# interpreter’s directory are disabled outside of a virtual environment. 
+# This image installs pip packages into the base interpreter (no venv). Ubuntu 26 — like 24 —
+# ships its system Python as an externally-managed environment (PEP 668), which blocks that, so
+# set the flag to allow it. (Interpreter here is the source-built Python 3.14 in /usr/local.)
 # https://peps.python.org/pep-0668/
 RUN ${PIP} config set global.break-system-packages true
 
@@ -160,37 +160,50 @@ RUN HOME_DIR=/root \
 
 # Setting up APT and PIP repo for neuron artifacts
 ARG NEURON_APT_REPO=apt.repos.neuron.amazonaws.com
-ARG NEURON_APT_REPO_KEY
 ARG NEURON_PIP_REPO=pip.repos.neuron.amazonaws.com
-ARG NEURON_PIP_REPO_KEY
-RUN mkdir -p /etc/apt/keyrings \
- && APT_REPO_PREFIX=$([ -n "${NEURON_APT_REPO_KEY}" ] && echo "${NEURON_APT_REPO_KEY}@" || echo "") \
- && echo "deb [signed-by=/etc/apt/keyrings/neuron.gpg] https://${APT_REPO_PREFIX}${NEURON_APT_REPO} jammy main" > /etc/apt/sources.list.d/neuron.list \
- && curl $([ -n "${NEURON_APT_REPO_KEY}" ] && echo "-u ${NEURON_APT_REPO_KEY}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
+RUN --mount=type=secret,id=neuron_repo \
+    mkdir -p /etc/apt/keyrings \
+ && echo "deb [signed-by=/etc/apt/keyrings/neuron.gpg] https://${NEURON_APT_REPO} jammy main" > /etc/apt/sources.list.d/neuron.list \
+ && NEURON_REPO_CRED="$([ -s /run/secrets/neuron_repo ] && cat /run/secrets/neuron_repo || true)" \
+ && curl $([ -n "${NEURON_REPO_CRED}" ] && echo "-u ${NEURON_REPO_CRED}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
 
 # Neuron SDK components version numbers
-ARG NEURONX_RUNTIME_LIB_VERSION=2.34.10.0-ac18d186d
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.34.10.0-74eaafac6
-ARG NEURONX_TOOLS_VERSION=2.32.28.0-526c2b7f6
+ARG NEURONX_RUNTIME_LIB_VERSION=2.35.30.0-d2725ccb8
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.35.43.0-354ad3064
+ARG NEURONX_TOOLS_VERSION=2.33.38.0-f874d5618
 
-ARG NEURONX_CC_VERSION=2.27.5334.0+f702b353
-ARG NEURONX_JAX_TRAINING_VERSION=0.10.0.1.0.11459+1e1fc1db
-ARG NKI_VERSION=0.6.0+31049202112.g85070674
-ARG NEURON_AGENTIC_DEVELOPMENT_VERSION=1.3
+ARG NEURONX_CC_VERSION=2.28.7631.0+8f7b0cf5
+ARG NEURONX_JAX_TRAINING_VERSION=0.10.0.1.0.14198+40d442c2
+ARG NKI_VERSION=0.7.0+37713544100.gfede04bb
+ARG NEURON_AGENTIC_DEVELOPMENT_VERSION=1.4
 
 FROM base AS repo
 
 # Install Neuron components from the apt and pip repos (latest versions)
-RUN apt-get update \
+RUN --mount=type=secret,id=neuron_repo \
+    mkdir -p /etc/apt/auth.conf.d \
+ && if [ -s /run/secrets/neuron_repo ]; then \
+      CRED="$(cat /run/secrets/neuron_repo)"; \
+      printf 'machine %s login %s password %s\n' "${NEURON_APT_REPO}" "${CRED%%:*}" "${CRED#*:}" > /etc/apt/auth.conf.d/neuron.conf; \
+      chmod 600 /etc/apt/auth.conf.d/neuron.conf; \
+    fi \
+ && apt-get update \
  && apt-get install -y \
     aws-neuronx-tools \
     aws-neuronx-collectives \
     aws-neuronx-runtime-lib \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
- && apt-get clean
+ && apt-get clean \
+ && rm -f /etc/apt/auth.conf.d/neuron.conf
 
-RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
+RUN --mount=type=secret,id=neuron_repo \
+    PIP_REPO_URL="https://${NEURON_PIP_REPO}" \
+ && if [ -s /run/secrets/neuron_repo ]; then \
+      CRED="$(cat /run/secrets/neuron_repo)"; \
+      ENC="$(printf '%s' "$CRED" | python3 -c 'import urllib.parse,sys; u,p=sys.stdin.read().split(":",1); print(urllib.parse.quote(u,safe="")+":"+urllib.parse.quote(p,safe=""))')"; \
+      PIP_REPO_URL="https://${ENC}@${NEURON_PIP_REPO}"; \
+    fi \
  && ${PIP} install --no-cache-dir --force-reinstall \
    --index-url ${PIP_REPO_URL} \
    --extra-index-url ${PYPI_SIMPLE_URL} \
@@ -203,19 +216,31 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
 
 FROM base AS prod
 
-# Install Neuron components
-# Install Neuron Driver, Runtime and Tools
-RUN apt-get update \
+# Install Neuron components from the apt and pip repos
+RUN --mount=type=secret,id=neuron_repo \
+    mkdir -p /etc/apt/auth.conf.d \
+ && if [ -s /run/secrets/neuron_repo ]; then \
+      CRED="$(cat /run/secrets/neuron_repo)"; \
+      printf 'machine %s login %s password %s\n' "${NEURON_APT_REPO}" "${CRED%%:*}" "${CRED#*:}" > /etc/apt/auth.conf.d/neuron.conf; \
+      chmod 600 /etc/apt/auth.conf.d/neuron.conf; \
+    fi \
+ && apt-get update \
  && apt-get install -y \
     aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
     aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
     aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
- && apt-get clean
+ && apt-get clean \
+ && rm -f /etc/apt/auth.conf.d/neuron.conf
 
-# Install JAX & Neuron CC
-RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP_REPO_KEY}@${NEURON_PIP_REPO}" || echo "https://${NEURON_PIP_REPO}") \
+RUN --mount=type=secret,id=neuron_repo \
+    PIP_REPO_URL="https://${NEURON_PIP_REPO}" \
+ && if [ -s /run/secrets/neuron_repo ]; then \
+      CRED="$(cat /run/secrets/neuron_repo)"; \
+      ENC="$(printf '%s' "$CRED" | python3 -c 'import urllib.parse,sys; u,p=sys.stdin.read().split(":",1); print(urllib.parse.quote(u,safe="")+":"+urllib.parse.quote(p,safe=""))')"; \
+      PIP_REPO_URL="https://${ENC}@${NEURON_PIP_REPO}"; \
+    fi \
  && ${PIP} install --no-cache-dir --force-reinstall \
    --index-url ${PIP_REPO_URL} \
    --trusted-host ${NEURON_PIP_REPO} \
@@ -229,7 +254,8 @@ RUN PIP_REPO_URL=$([ -n "${NEURON_PIP_REPO_KEY}" ] && echo "https://${NEURON_PIP
 FROM ${BUILD_STAGE} AS final
 
 # Upgrade OS packages to latest versions
-RUN apt-get update \
+RUN rm -f /etc/apt/sources.list.d/neuron.list /etc/apt/keyrings/neuron.gpg \
+ && apt-get update \
  && apt-get upgrade -y \
  && rm -rf /var/lib/apt/lists/* \
  && apt-get clean
