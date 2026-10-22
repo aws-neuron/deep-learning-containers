@@ -1,0 +1,363 @@
+ARG BUILD_STAGE=prod
+
+FROM public.ecr.aws/docker/library/ubuntu:26.04 AS base
+
+LABEL maintainer="Amazon AI"
+LABEL dlc_major_version="1"
+
+# SageMaker DLC identification labels. Read by SageMaker/JumpStart tooling to
+# identify the container's accelerator, framework, runtime, and OS.
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.device.neuron="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.arch.x86="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.python.py314="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.os.ubuntu26-04="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.job.training="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.framework.pytorch.2-14-0="true"
+
+ARG PYTHON=python3.14
+ARG PYTHON_VERSION=3.14.7
+ARG PIP=pip3
+ARG OMPI_VERSION=4.1.5
+ARG PYPI_SIMPLE_URL="https://pypi.org/simple/"
+
+# Keep apt non-interactive so tzdata's timezone/region prompt can't stall the build
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Python won’t try to write .pyc or .pyo files on the import of source modules
+# Force stdin, stdout and stderr to be totally unbuffered. Good for logging
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/aws/neuron/lib"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/efa/lib64"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/amazon/openmpi/lib64"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
+ENV PATH="/opt/aws/neuron/bin:${PATH}"
+ENV PATH="${PATH}:/opt/amazon/efa/bin"
+ENV SAGEMAKER_TRAINING_MODULE=sagemaker_pytorch_container.training:main
+ENV DGLBACKEND=pytorch
+
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    cmake \
+    curl \
+    git \
+    gnupg2 \
+    gpg-agent \
+    jq \
+    libglib2.0-0 \
+    libgl1-mesa-dri \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libssl-dev \
+    libsqlite3-dev \
+    libgdbm-dev \
+    libgdbm-compat-dev \
+    libc6-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libncurses-dev \
+    libreadline-dev \
+    libffi-dev \
+    libcap-dev \
+    libhwloc-dev \
+    openssl \
+    patchelf \
+    software-properties-common \
+    tk-dev \
+    unzip \
+    wget \
+    zlib1g-dev \
+    libzstd-dev \
+ && rm -rf /tmp/tmp* \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt-get clean
+
+# Install Open MPI
+RUN mkdir -p /tmp/openmpi \
+ && cd /tmp/openmpi \
+ && wget --quiet https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-${OMPI_VERSION}.tar.gz \
+ && tar zxf openmpi-${OMPI_VERSION}.tar.gz \
+ && cd openmpi-${OMPI_VERSION} \
+ && ./configure --enable-orterun-prefix-by-default \
+ && make -j $(nproc) all \
+ && make install \
+ && ldconfig \
+ && rm -rf /tmp/openmpi
+
+ # Install packages an configure SSH for MPI in K8s
+RUN apt-get update && apt-get install -y openmpi-bin openssh-server \
+ && mkdir -p /var/run/sshd \
+ && echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config \
+ && echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config \
+ && sed -i 's/#\(StrictModes \).*/\1no/g' /etc/ssh/sshd_config \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+
+ # Install Python
+RUN wget -q https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz \
+ && tar -xzf Python-$PYTHON_VERSION.tgz \
+ && cd Python-$PYTHON_VERSION \
+ && ./configure --enable-shared --prefix=/usr/local \
+ && make -j $(nproc) && make install \
+ && cd .. && rm -rf ../Python-$PYTHON_VERSION* \
+ && ln -s /usr/local/bin/pip3 /usr/bin/pip \
+ && ln -s /usr/local/bin/$PYTHON /usr/local/bin/python \
+ && ${PIP} --no-cache-dir install --upgrade pip \
+ && rm -rf ~/.cache/pip/*
+
+WORKDIR /
+
+# The ENV variables declared below are changed in the previous section
+# Grouping these ENV variables in the first section causes
+# ompi_info to fail. This is only observed in CPU containers
+ENV PATH="$PATH:/home/.openmpi/bin"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/.openmpi/lib/"
+RUN ompi_info --parsable --all | grep mpi_built_with_cuda_support:value
+
+# Install AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+ && unzip awscliv2.zip \
+ && ./aws/install \
+ && rm -rf awscliv2.zip aws
+
+RUN ${PIP} install --no-cache-dir -U \
+    scipy \
+    click \
+    cryptography \
+    psutil \
+    dataset \
+    Pillow \
+    uv \
+ && rm -rf ~/.cache/pip/*
+
+RUN mkdir -p /etc/pki/tls/certs && cp /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
+
+RUN ${PIP} install --no-cache-dir -U \
+    attrs \
+    python-etcd \
+    requests \
+ && rm -rf ~/.cache/pip/*
+
+# EFA Installer does apt get. Make sure to run apt update before that
+RUN apt-get update \
+ && cd $HOME \
+ && curl -O https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz \
+ && wget https://efa-installer.amazonaws.com/aws-efa-installer.key && gpg --import aws-efa-installer.key \
+ && cat aws-efa-installer.key | gpg --fingerprint \
+ && wget https://efa-installer.amazonaws.com/aws-efa-installer-latest.tar.gz.sig && gpg --verify ./aws-efa-installer-latest.tar.gz.sig \
+ && tar -xf aws-efa-installer-latest.tar.gz \
+ && cd aws-efa-installer \
+ && ./efa_installer.sh -y -g --skip-kmod --skip-limit-conf --no-verify \
+ && cd $HOME \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean
+
+# Install some common packages used by training scripts
+# Needed for running bert training scripts
+RUN pip3 install --no-cache-dir -U \
+    graphviz \
+    tensorboard \
+    accelerate \
+ && rm -rf ~/.cache/pip/*
+
+# Copy workaround script for incorrect hostname
+COPY changehostname.c /
+COPY --chmod=755 start_with_right_hostname.sh deep_learning_container.py /usr/local/bin/
+
+RUN HOME_DIR=/root \
+ && curl -o ${HOME_DIR}/oss_compliance.zip https://aws-dlinfra-utilities.s3.amazonaws.com/oss_compliance.zip \
+ && unzip ${HOME_DIR}/oss_compliance.zip -d ${HOME_DIR}/ \
+ && cp ${HOME_DIR}/oss_compliance/test/testOSSCompliance /usr/local/bin/testOSSCompliance \
+ && chmod +x /usr/local/bin/testOSSCompliance \
+ && chmod +x ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh \
+ && ${HOME_DIR}/oss_compliance/generate_oss_compliance.sh ${HOME_DIR} ${PYTHON} \
+ && rm -rf ${HOME_DIR}/oss_compliance* \
+ && rm -rf /tmp/tmp*
+
+RUN curl -o /license.txt  https://aws-dlc-licenses.s3.amazonaws.com/pytorch-2.14/license.txt
+
+# Setting up APT and PIP repo for neuron artifacts
+ARG NEURON_APT_REPO=apt.repos.neuron.amazonaws.com
+ARG NEURON_PIP_REPO=pip.repos.neuron.amazonaws.com
+RUN --mount=type=secret,id=neuron_repo \
+    mkdir -p /etc/apt/keyrings \
+ && echo "deb [signed-by=/etc/apt/keyrings/neuron.gpg] https://${NEURON_APT_REPO} jammy main" > /etc/apt/sources.list.d/neuron.list \
+ && NEURON_REPO_CRED="$([ -s /run/secrets/neuron_repo ] && cat /run/secrets/neuron_repo || true)" \
+ && curl $([ -n "${NEURON_REPO_CRED}" ] && echo "-u ${NEURON_REPO_CRED}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
+
+# Neuron SDK components
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.35.43.0-354ad3064
+ARG NEURONX_RUNTIME_LIB_VERSION=2.35.30.0-d2725ccb8
+ARG NEURONX_TOOLS_VERSION=2.33.38.0-f874d5618
+
+ARG NEURONX_CC_VERSION=2.28.7631.0+8f7b0cf5
+ARG NKI_VERSION=0.7.0+37713544100.gfede04bb
+ARG NEURON_AGENTIC_DEVELOPMENT_VERSION=1.4
+
+# Primary repo: torch-neuronx
+ARG GITHUB_REPO=https://github.com/aws-neuron/torch-neuronx.git
+ARG GITHUB_REPO_BRANCH=release-2.33
+
+# Secondary repo: torchtitan-neuron
+ARG GITHUB_REPO_2=https://github.com/aws-neuron/torchtitan-neuron.git
+ARG GITHUB_REPO_BRANCH_2=release_2.33.0
+
+# Configure SSH access
+RUN mkdir -p /root/.ssh \
+ && echo "StrictHostKeyChecking no" >> /root/.ssh/config \
+ && ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
+
+# Clone torch-neuronx repository, install Bazelisk, and make build scripts executable
+RUN --mount=type=secret,id=containers_github_ssh_key,target=/root/.ssh/id_ed25519,mode=0600 \
+    git clone -b ${GITHUB_REPO_BRANCH} ${GITHUB_REPO} /workspace/torch_neuronx \
+ && bash /workspace/torch_neuronx/install_bazelisk.sh \
+ && chmod +x /workspace/torch_neuronx/tools/*
+
+# Clone torchtitan-neuron repository (secondary repo)
+RUN --mount=type=secret,id=containers_github_ssh_key,target=/root/.ssh/id_ed25519,mode=0600 \
+    git clone -b ${GITHUB_REPO_BRANCH_2} ${GITHUB_REPO_2} /workspace/torchtitan_neuron
+
+FROM base AS repo
+
+# Install Neuron components from the apt repos (latest versions).
+RUN --mount=type=secret,id=neuron_repo \
+    mkdir -p /etc/apt/auth.conf.d \
+ && if [ -s /run/secrets/neuron_repo ]; then \
+      CRED="$(cat /run/secrets/neuron_repo)"; \
+      printf 'machine %s login %s password %s\n' "${NEURON_APT_REPO}" "${CRED%%:*}" "${CRED#*:}" > /etc/apt/auth.conf.d/neuron.conf; \
+      chmod 600 /etc/apt/auth.conf.d/neuron.conf; \
+    fi \
+ && apt-get update \
+ && apt-get install -y \
+    aws-neuronx-tools \
+    aws-neuronx-collectives \
+    aws-neuronx-runtime-lib \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean \
+ && rm -f /etc/apt/auth.conf.d/neuron.conf
+
+# Install Neuron pip components (latest versions) and build torch-neuronx from source.
+RUN --mount=type=secret,id=neuron_repo \
+    PIP_REPO_URL="https://${NEURON_PIP_REPO}" \
+ && if [ -s /run/secrets/neuron_repo ]; then \
+      CRED="$(cat /run/secrets/neuron_repo)"; \
+      ENC="$(printf '%s' "$CRED" | python3 -c 'import urllib.parse,sys; u,p=sys.stdin.read().split(":",1); print(urllib.parse.quote(u,safe="")+":"+urllib.parse.quote(p,safe=""))')"; \
+      PIP_REPO_URL="https://${ENC}@${NEURON_PIP_REPO}"; \
+    fi \
+ && cd /workspace/torch_neuronx \
+ && ${PIP} install --no-cache-dir --force-reinstall \
+   --index-url ${PIP_REPO_URL} \
+   --trusted-host ${NEURON_PIP_REPO} \
+   --extra-index-url ${PYPI_SIMPLE_URL} \
+   neuronx-cc \
+   nki \
+   neuron_agentic_development \
+   -e . \
+ && ./tools/build --python "${PYTHON#python}" \
+ && rm -rf ~/.cache/pip/*
+
+# Pin torch to the version torch-neuronx was just built against for all later pip installs
+# in this image (prevents an unconstrained dep, e.g. torchdata, from upgrading torch).
+RUN mkdir -p /etc/pip \
+ && ${PIP} freeze | grep -E '^torch==' > /etc/pip/constraints.txt
+ENV PIP_CONSTRAINT=/etc/pip/constraints.txt
+
+# Editable-install TorchTitan into the DLC's torch-neuronx env, resolving its declared
+# dependencies from the configured indexes.
+RUN cd /workspace/torchtitan_neuron \
+ && ${PIP} install --no-cache-dir -e . \
+ && rm -rf ~/.cache/pip/*
+
+FROM base AS prod
+
+# Install Neuron apt components with specific versions.
+RUN --mount=type=secret,id=neuron_repo \
+    mkdir -p /etc/apt/auth.conf.d \
+ && if [ -s /run/secrets/neuron_repo ]; then \
+      CRED="$(cat /run/secrets/neuron_repo)"; \
+      printf 'machine %s login %s password %s\n' "${NEURON_APT_REPO}" "${CRED%%:*}" "${CRED#*:}" > /etc/apt/auth.conf.d/neuron.conf; \
+      chmod 600 /etc/apt/auth.conf.d/neuron.conf; \
+    fi \
+ && apt-get update \
+ && apt-get install -y \
+   aws-neuronx-tools=$NEURONX_TOOLS_VERSION \
+   aws-neuronx-collectives=$NEURONX_COLLECTIVES_LIB_VERSION \
+   aws-neuronx-runtime-lib=$NEURONX_RUNTIME_LIB_VERSION \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /tmp/tmp* \
+ && apt-get clean \
+ && rm -f /etc/apt/auth.conf.d/neuron.conf
+
+# Install Neuron pip components with specific versions and build torch-neuronx from source.
+RUN --mount=type=secret,id=neuron_repo \
+    PIP_REPO_URL="https://${NEURON_PIP_REPO}" \
+ && if [ -s /run/secrets/neuron_repo ]; then \
+      CRED="$(cat /run/secrets/neuron_repo)"; \
+      ENC="$(printf '%s' "$CRED" | python3 -c 'import urllib.parse,sys; u,p=sys.stdin.read().split(":",1); print(urllib.parse.quote(u,safe="")+":"+urllib.parse.quote(p,safe=""))')"; \
+      PIP_REPO_URL="https://${ENC}@${NEURON_PIP_REPO}"; \
+    fi \
+ && cd /workspace/torch_neuronx \
+ && ${PIP} install --no-cache-dir --force-reinstall \
+   --index-url ${PIP_REPO_URL} \
+   --trusted-host ${NEURON_PIP_REPO} \
+   --extra-index-url ${PYPI_SIMPLE_URL} \
+   neuronx-cc==$NEURONX_CC_VERSION \
+   nki==$NKI_VERSION \
+   neuron_agentic_development==$NEURON_AGENTIC_DEVELOPMENT_VERSION \
+   -e . \
+ && ./tools/build --python "${PYTHON#python}" \
+ && rm -rf ~/.cache/pip/*
+
+# Pin torch to the version torch-neuronx was just built against for all later pip installs
+# in this image (prevents an unconstrained dep, e.g. torchdata, from upgrading torch).
+RUN mkdir -p /etc/pip \
+ && ${PIP} freeze | grep -E '^torch==' > /etc/pip/constraints.txt
+ENV PIP_CONSTRAINT=/etc/pip/constraints.txt
+
+# Editable-install TorchTitan into the DLC's torch-neuronx env, resolving its declared
+# dependencies from the configured indexes.
+RUN cd /workspace/torchtitan_neuron \
+ && ${PIP} install --no-cache-dir -e . \
+ && rm -rf ~/.cache/pip/*
+
+ 
+FROM ${BUILD_STAGE} AS final
+
+# Prune build caches, development-only files, and VCS metadata.
+RUN rm -rf \
+      /root/.cache/bazel \
+      /root/.cache/bazel-torch-neuronx \
+      /root/.cache/uv \
+      /workspace/torch_neuronx/.venv \
+      /workspace/torch_neuronx/uv.lock \
+      /workspace/torch_neuronx/.github \
+      /workspace/torch_neuronx/.internal_docs \
+      /workspace/torchtitan_neuron/.github \
+ && find /workspace/torch_neuronx -depth -type d -name .git -exec rm -rf {} + 2>/dev/null || true \
+ && find /workspace/torchtitan_neuron -depth -type d -name .git -exec rm -rf {} + 2>/dev/null || true \
+ && find /workspace/torch_neuronx -name 'requirements*.txt' -delete 2>/dev/null || true
+
+# Upgrade OS packages to latest versions
+RUN rm -f /etc/apt/sources.list.d/neuron.list /etc/apt/keyrings/neuron.gpg \
+ && apt-get update \
+ && apt-get upgrade -y \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt-get clean
+
+# Starts framework
+ENTRYPOINT ["bash", "-m", "start_with_right_hostname.sh"]
+CMD ["/bin/bash"]
+
+HEALTHCHECK CMD curl --fail http://localhost:8080/ping || exit 1

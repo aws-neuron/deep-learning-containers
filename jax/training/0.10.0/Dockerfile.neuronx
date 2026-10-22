@@ -5,6 +5,15 @@ FROM public.ecr.aws/docker/library/ubuntu:26.04 AS base
 LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
 
+# SageMaker DLC identification labels. Read by SageMaker/JumpStart tooling to
+# identify the container's accelerator, framework, runtime, and OS.
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.device.neuron="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.arch.x86="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.python.py314="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.os.ubuntu26-04="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.job.training="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.framework.jax.0-10-0="true"
+
 # Keep apt non-interactive so tzdata's timezone/region prompt can't stall the build
 ARG DEBIAN_FRONTEND=noninteractive
 ARG PYTHON=python3.14
