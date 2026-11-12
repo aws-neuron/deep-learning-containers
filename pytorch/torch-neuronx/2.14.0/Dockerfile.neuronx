@@ -5,11 +5,21 @@ FROM public.ecr.aws/docker/library/ubuntu:26.04 AS base
 LABEL maintainer="Amazon AI"
 LABEL dlc_major_version="1"
 
+# SageMaker DLC identification labels. Read by SageMaker/JumpStart tooling to
+# identify the container's accelerator, framework, runtime, and OS.
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.device.neuron="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.arch.x86="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.python.py314="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.os.ubuntu26-04="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.job.training="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.framework.pytorch.2-14-0="true"
+
 ARG PYTHON=python3.14
 ARG PYTHON_VERSION=3.14.7
 ARG PIP=pip3
 ARG OMPI_VERSION=4.1.5
 ARG PYPI_SIMPLE_URL="https://pypi.org/simple/"
+ARG TORCH_CPU_INDEX_URL="https://download.pytorch.org/whl/cpu"
 
 # Keep apt non-interactive so tzdata's timezone/region prompt can't stall the build
 ARG DEBIAN_FRONTEND=noninteractive
@@ -150,17 +160,10 @@ RUN apt-get update \
  && cd aws-efa-installer \
  && ./efa_installer.sh -y -g --skip-kmod --skip-limit-conf --no-verify \
  && cd $HOME \
+ && rm -rf $HOME/aws-efa-installer $HOME/aws-efa-installer-latest.tar.gz* $HOME/aws-efa-installer.key \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
  && apt-get clean
-
-# Install some common packages used by training scripts
-# Needed for running bert training scripts
-RUN pip3 install --no-cache-dir -U \
-    graphviz \
-    tensorboard \
-    accelerate \
- && rm -rf ~/.cache/pip/*
 
 # Copy workaround script for incorrect hostname
 COPY changehostname.c /
@@ -188,8 +191,8 @@ RUN --mount=type=secret,id=neuron_repo \
  && curl $([ -n "${NEURON_REPO_CRED}" ] && echo "-u ${NEURON_REPO_CRED}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
 
 # Neuron SDK components
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.35.43.0-354ad3064
-ARG NEURONX_RUNTIME_LIB_VERSION=2.35.30.0-d2725ccb8
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.35.49.0-354ad3064
+ARG NEURONX_RUNTIME_LIB_VERSION=2.35.33.0-d2725ccb8
 ARG NEURONX_TOOLS_VERSION=2.33.38.0-f874d5618
 
 ARG NEURONX_CC_VERSION=2.28.7631.0+8f7b0cf5
@@ -252,12 +255,14 @@ RUN --mount=type=secret,id=neuron_repo \
    --index-url ${PIP_REPO_URL} \
    --trusted-host ${NEURON_PIP_REPO} \
    --extra-index-url ${PYPI_SIMPLE_URL} \
+   --extra-index-url ${TORCH_CPU_INDEX_URL} \
    neuronx-cc \
    nki \
    neuron_agentic_development \
    -e . \
  && ./tools/build --python "${PYTHON#python}" \
- && rm -rf ~/.cache/pip/*
+ && rm -rf ~/.cache/pip/* ~/.cache/bazel ~/.cache/bazel-torch-neuronx ~/.cache/uv \
+      /workspace/torch_neuronx/.venv /workspace/torch_neuronx/uv.lock
 
 # Pin torch to the version torch-neuronx was just built against for all later pip installs
 # in this image (prevents an unconstrained dep, e.g. torchdata, from upgrading torch).
@@ -304,12 +309,14 @@ RUN --mount=type=secret,id=neuron_repo \
    --index-url ${PIP_REPO_URL} \
    --trusted-host ${NEURON_PIP_REPO} \
    --extra-index-url ${PYPI_SIMPLE_URL} \
+   --extra-index-url ${TORCH_CPU_INDEX_URL} \
    neuronx-cc==$NEURONX_CC_VERSION \
    nki==$NKI_VERSION \
    neuron_agentic_development==$NEURON_AGENTIC_DEVELOPMENT_VERSION \
    -e . \
  && ./tools/build --python "${PYTHON#python}" \
- && rm -rf ~/.cache/pip/*
+ && rm -rf ~/.cache/pip/* ~/.cache/bazel ~/.cache/bazel-torch-neuronx ~/.cache/uv \
+      /workspace/torch_neuronx/.venv /workspace/torch_neuronx/uv.lock
 
 # Pin torch to the version torch-neuronx was just built against for all later pip installs
 # in this image (prevents an unconstrained dep, e.g. torchdata, from upgrading torch).
@@ -336,9 +343,8 @@ RUN rm -rf \
       /workspace/torch_neuronx/.github \
       /workspace/torch_neuronx/.internal_docs \
       /workspace/torchtitan_neuron/.github \
- && find /workspace/torch_neuronx -depth -type d -name .git -exec rm -rf {} + 2>/dev/null || true \
- && find /workspace/torchtitan_neuron -depth -type d -name .git -exec rm -rf {} + 2>/dev/null || true \
- && find /workspace/torch_neuronx -name 'requirements*.txt' -delete 2>/dev/null || true
+ && find /workspace/torch_neuronx /workspace/torchtitan_neuron -name 'requirements*.txt' -delete 2>/dev/null || true \
+ && find /usr/local/lib/python*/site-packages -path '*/neuron_agentic_development/*' -name 'requirements*.txt' -delete 2>/dev/null || true
 
 # Upgrade OS packages to latest versions
 RUN rm -f /etc/apt/sources.list.d/neuron.list /etc/apt/keyrings/neuron.gpg \
