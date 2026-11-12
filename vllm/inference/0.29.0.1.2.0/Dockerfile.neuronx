@@ -5,12 +5,20 @@ FROM public.ecr.aws/docker/library/ubuntu:26.04 AS base
 LABEL dlc_major_version="1"
 LABEL maintainer="Amazon AI"
 
+# SageMaker DLC identification labels. Read by SageMaker/JumpStart tooling to
+# identify the container's accelerator, framework, runtime, and OS.
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.device.neuron="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.arch.x86="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.python.py314="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.os.ubuntu26-04="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.job.inference="true"
+LABEL com.amazonaws.ml.engines.sagemaker.dlc.framework.vllm.0-29-0-1-2-0="true"
+
 # Keep apt non-interactive so tzdata's timezone/region prompt can't stall the build
 ARG DEBIAN_FRONTEND=noninteractive
 ARG PIP=pip3
 ARG PYTHON=python3.14
 ARG PYTHON_VERSION=3.14.7
-ARG TORCHSERVE_VERSION=0.11.0
 ARG PYPI_SIMPLE_URL="https://pypi.org/simple/"
 
 
@@ -47,7 +55,6 @@ RUN apt-get update \
     libcap-dev \
     libhwloc-dev \
     openssh-client \
-    openjdk-11-jdk \
     unzip \
     wget \
     zlib1g-dev \
@@ -55,11 +62,6 @@ RUN apt-get update \
  && rm -rf /tmp/tmp* \
  && apt-get clean
 
-
-# https://github.com/docker-library/openjdk/issues/261 https://github.com/docker-library/openjdk/pull/263/files
-RUN keytool -importkeystore -srckeystore /etc/ssl/certs/java/cacerts -destkeystore /etc/ssl/certs/java/cacerts.jks -deststoretype JKS -srcstorepass changeit -deststorepass changeit -noprompt; \
-    mv /etc/ssl/certs/java/cacerts.jks /etc/ssl/certs/java/cacerts; \
-    /var/lib/dpkg/info/ca-certificates-java.postinst configure;
 
 RUN curl -L -o ~/miniforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh \
  && chmod +x ~/miniforge.sh \
@@ -102,6 +104,7 @@ RUN apt-get update \
  && cd aws-efa-installer \
  && ./efa_installer.sh -y -g --skip-kmod --skip-limit-conf --no-verify \
  && cd $HOME \
+ && rm -rf $HOME/aws-efa-installer $HOME/aws-efa-installer-latest.tar.gz* $HOME/aws-efa-installer.key \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/tmp* \
  && apt-get clean
@@ -147,14 +150,9 @@ RUN ${PIP} install --no-cache-dir -U \
     "wheel" \
     "jinja2" \
     uv \
-    torchserve==${TORCHSERVE_VERSION} \
-    torch-model-archiver==${TORCHSERVE_VERSION} \
  && rm -rf ~/.cache/pip/*
 
-RUN useradd -m model-server \
- && mkdir -p /home/model-server/tmp /opt/ml/model \
- && chown -R model-server /home/model-server /opt/ml/model
-COPY config.properties /home/model-server
+RUN mkdir -p /opt/ml/model
 
 # Compliance 
 RUN HOME_DIR=/root \
@@ -178,14 +176,14 @@ RUN --mount=type=secret,id=neuron_repo \
  && curl $([ -n "${NEURON_REPO_CRED}" ] && echo "-u ${NEURON_REPO_CRED}") --retry 3 --retry-delay 1 --retry-all-errors -fSL "https://${NEURON_APT_REPO}/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB" | gpg --dearmor > /etc/apt/keyrings/neuron.gpg
 
 # Neuron SDK components version numbers
-ARG NEURONX_COLLECTIVES_LIB_VERSION=2.35.43.0-354ad3064
-ARG NEURONX_RUNTIME_LIB_VERSION=2.35.30.0-d2725ccb8
+ARG NEURONX_COLLECTIVES_LIB_VERSION=2.35.49.0-354ad3064
+ARG NEURONX_RUNTIME_LIB_VERSION=2.35.33.0-d2725ccb8
 ARG NEURONX_TOOLS_VERSION=2.33.38.0-f874d5618
 
 ARG NEURONX_CC_VERSION=2.28.7631.0+8f7b0cf5
 ARG NKI_VERSION=0.7.0+37713544100.gfede04bb
 ARG NEURON_AGENTIC_DEVELOPMENT_VERSION=1.4
-ARG LIBTORCH_NEURONX_LITE_VERSION=2.13.0.1.0.3112+653bc48f
+ARG LIBTORCH_NEURONX_LITE_VERSION=2.13.0.1.0.4089+71ce3449
 
 # GitHub repository and branch
 ARG GITHUB_REPO=https://github.com/vllm-project/vllm-neuron.git
@@ -292,6 +290,10 @@ RUN conda config --set solver libmamba \
  && (conda remove -y --force-remove py-rattler conda-rattler-solver || true) \
  && conda clean -ya \
  && rm -rf /opt/conda/pkgs/*
+
+RUN find /opt/conda/lib/python*/site-packages -path '*/neuron_agentic_development/*' -name 'requirements*.txt' -delete 2>/dev/null || true \
+ && rm -f /opt/conda/lib/python*/site-packages/benchmarks/requirements.txt \
+          /opt/conda/lib/python*/site-packages/samples/requirements.txt
 
 EXPOSE 8080 8081
 
